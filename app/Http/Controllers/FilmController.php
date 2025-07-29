@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Film;
+use App\Models\Genre;
 use App\Models\VerifiedFilm;
 use Carbon\Carbon;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -16,8 +18,8 @@ class FilmController extends Controller
      */
     public function index()
     {
-        // $film = VerifiedFilm::where('rotten_tomatoes_rating',Null)->orWhere('metacritic_rating',Null)->count();
-        // dd($film);
+        $genres = Genre::select('name')->get();
+
         // for searching with title or director
         $search = request()->input('search');
         $sortBy = request()->input('sort_by');
@@ -40,7 +42,9 @@ class FilmController extends Controller
             'films' => Inertia::deepMerge(fn() => $films->items()), //deepmerge for object/array to be nested deep merge
             'pagination' => Arr::except($films->toArray(), 'data'),
             'search' => $search,
-            'sort_by' => $sortBy
+            'sort_by' => $sortBy,
+            'genres' => $genres,
+             'genre' => request()->genre,
         ]);
     }
 

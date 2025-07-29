@@ -27,6 +27,18 @@
                         <Link href="/about" class="nav-link">About</Link>
                     </li>
                 </ul>
+
+                <!-- genres -->
+                <select @change="emitGenre($event)" class="form-select">
+                    <option value="">All Genres</option>
+                    <option
+                        v-for="genre in genres"
+                        :key="genre.id"
+                        :value="genre.name"
+                    >
+                        {{ genre.name }}
+                    </option>
+                </select>
             </div>
         </div>
     </nav>
@@ -48,11 +60,17 @@
     </div>
 </template>
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link } from "@inertiajs/vue3";
 
 const props = defineProps({
-  search: String,
+    search: String,
+    genres: Array, // passed from the page (like Index.vue)
 });
 
-const emit = defineEmits(["update:search"]);
+const emit = defineEmits(["update:search","genreSelected"]);
+
+
+function emitGenre(event) {
+    emit("genreSelected", event.target.value);
+}
 </script>

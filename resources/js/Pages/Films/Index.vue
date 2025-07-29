@@ -1,5 +1,5 @@
 <template>
-    <AppLayout>
+    <AppLayout :genres="allGenres" @genreSelected="filterByGenre" v-model:search="search" >
         <div class="container mb-5">
             <div class="d-flex justify-end gap-5">
                 <div class="dropdown">
@@ -35,7 +35,7 @@
                     </div>
                 </div>
 
-                <div>
+                <!-- <div>
                     <input
                         class="form-control me-2"
                         type="search"
@@ -43,7 +43,7 @@
                         v-model="search"
                         aria-label="Search"
                     />
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -148,4 +148,20 @@ watch(
         });
     }, 1000)
 );
+
+const allGenres = ref(page.props.genres || []);
+const selectedGenre = ref("");
+
+// Method triggered from AppLayout
+function filterByGenre(genre) {
+  selectedGenre.value = genre;
+
+  router.reload({
+    data: {
+      genre: genre || null,
+    },
+    preserveState: true,
+    replace: true,
+  });
+}
 </script>
