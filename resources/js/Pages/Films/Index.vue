@@ -1,5 +1,5 @@
 <template>
- <AppLayout>
+    <AppLayout>
         <div class="container mb-5">
             <div class="d-flex justify-end gap-5">
                 <div class="dropdown">
@@ -72,7 +72,12 @@
             </div>
         </div>
 
-        <WhenVisible :always="!reachedEnd" :params="whenVisibleParams">
+        <!-- :key is re render / mounts the when visible component -->
+        <WhenVisible
+            :key="search + '-' + sort_by"
+            :always="!reachedEnd"
+            :params="whenVisibleParams"
+        >
             <template v-if="loading">
                 <div>Loading...</div>
             </template>
@@ -132,9 +137,7 @@ function sortBy(value) {
 watch(
     [search, sort_by],
     throttle(([searchValue, sortByValue]) => {
-        let data = {
-
-        };
+        let data = {};
         data.search = searchValue?.trim() || "";
         if (sortByValue) data.sort_by = sortByValue;
 
@@ -143,6 +146,6 @@ watch(
             preserveState: true,
             replace: true,
         });
-    }, 2000)
+    }, 1000)
 );
 </script>
