@@ -12,6 +12,7 @@
             >
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
                 <Link href="/" class="navbar-brand">Festival Film Finder</Link>
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -29,30 +30,30 @@
                 </ul>
 
                 <!-- genres -->
-                <select @change="emitGenre($event)" class="form-select">
+                <select @change="emitGenre($event)" class="form-select w-25">
                     <option value="">All Genres</option>
                     <option
                         v-for="genre in genres"
                         :key="genre.id"
-                        :value="genre.name"
+                        :value="genre.slug"
                     >
                         {{ genre.name }}
                     </option>
                 </select>
+
+                <!-- Search Input -->
+                <div class="p-3 w-25">
+                    <input
+                        class="form-control me-2"
+                        type="search"
+                        placeholder="Search by title or director"
+                        :value="props.search"
+                        @input="(e) => emit('update:search', e.target.value)"
+                    />
+                </div>
             </div>
         </div>
     </nav>
-
-    <!-- Search Input -->
-    <div class="p-3">
-        <input
-            class="form-control me-2"
-            type="search"
-            placeholder="Search by title or director"
-            :value="props.search"
-            @input="(e) => emit('update:search', e.target.value)"
-        />
-    </div>
 
     <!-- Main Content -->
     <div class="p-5">
@@ -67,8 +68,7 @@ const props = defineProps({
     genres: Array, // passed from the page (like Index.vue)
 });
 
-const emit = defineEmits(["update:search","genreSelected"]);
-
+const emit = defineEmits(["update:search", "genreSelected"]);
 
 function emitGenre(event) {
     emit("genreSelected", event.target.value);

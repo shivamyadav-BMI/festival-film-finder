@@ -12,7 +12,7 @@ const film = computed(() => page.props.film);
         {{ film.id }}
         <div class="jumbotron p-3 p-md-5 text-white rounded bg-dark">
             <div class="col-md-6 px-0">
-                <img :src="film.poster" class="card-img-top" alt="..." />
+                <img loading="lazy" :src="film.poster" class="card-img-top" :alt="film.title" />
                 <h1 class="display-4 font-italic">{{ film.title }}</h1>
                 <p class="lead my-3">{{ film.plot_summary }}</p>
                 <p class="lead mb-0">

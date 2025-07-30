@@ -1,5 +1,9 @@
 <template>
-    <AppLayout :genres="allGenres" @genreSelected="filterByGenre" v-model:search="search" >
+    <AppLayout
+        :genres="allGenres"
+        @genreSelected="filterByGenre"
+        v-model:search="search"
+    >
         <div class="container mb-5">
             <div class="d-flex justify-end gap-5">
                 <div class="dropdown">
@@ -50,7 +54,7 @@
         <div class="container">
             <div class="row g-4">
                 <Link
-                    :href="`/film/title/${film.title}`"
+                    :href="`/film/${film.id}`"
                     class="col-12 col-sm-6 col-md-4"
                     v-for="film in films"
                     :key="film.id"
@@ -61,7 +65,8 @@
                         <img
                             :src="film.poster"
                             class="card-img-top"
-                            alt="..."
+                            :alt="film.title"
+                            loading="lazy"
                         />
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">{{ film.title }}</h5>
@@ -70,10 +75,17 @@
                     </div>
                 </Link>
             </div>
+            <!-- show the not found search result  -->
+            <div class="" v-if="films.length == 0">
+                <h4 class="mx-auto">
+                    No search result found for <span>{{ search }}</span>
+                </h4>
+            </div>
         </div>
 
         <!-- :key is re render / mounts the when visible component -->
         <WhenVisible
+            :buffer="500"
             :key="search + '-' + sort_by"
             :always="!reachedEnd"
             :params="whenVisibleParams"
@@ -92,7 +104,7 @@ import { computed, ref, watch } from "vue";
 import { throttle } from "lodash";
 
 // Composable for WhenVisible loading + params logic
-function useWhenVisibleParams(search, sort_by) {
+function useWhenVisibleParams(search, sort_by, selectedGenre) {
     const page = usePage();
     const loading = ref(false);
 
@@ -101,6 +113,7 @@ function useWhenVisibleParams(search, sort_by) {
             page: page.props.pagination.current_page + 1,
             ...(search.value ? { search: search.value } : {}),
             ...(sort_by.value ? { sort_by: sort_by.value } : {}),
+            ...(selectedGenre.value ? { genre: selectedGenre.value } : {}),
         },
         preserveUrl: true,
         preserveState: true,
@@ -115,18 +128,22 @@ function useWhenVisibleParams(search, sort_by) {
     return { whenVisibleParams, loading };
 }
 
+
 // Setup
 const page = usePage();
-const films = computed(() => page.props.films);
+const films = computed(() => page.props.films.data);
 const reachedEnd = computed(
     () => page.props.pagination.current_page >= page.props.pagination.last_page
 );
 
+const allGenres = ref(page.props.genres || []);
+const selectedGenre = ref("");
 const search = ref(page.props.search || "");
 const sort_by = ref(page.props.sort_by || null);
 
-// Use the composable
-const { whenVisibleParams, loading } = useWhenVisibleParams(search, sort_by);
+// Using the composable
+const { whenVisibleParams, loading } = useWhenVisibleParams(search, sort_by, selectedGenre);
+
 
 // Sorting logic
 function sortBy(value) {
@@ -138,7 +155,7 @@ watch(
     [search, sort_by],
     throttle(([searchValue, sortByValue]) => {
         let data = {};
-        data.search = searchValue?.trim() || "";
+        if(searchValue?.trim() ) data.search = searchValue;
         if (sortByValue) data.sort_by = sortByValue;
 
         router.reload({
@@ -149,19 +166,19 @@ watch(
     }, 1000)
 );
 
-const allGenres = ref(page.props.genres || []);
-const selectedGenre = ref("");
+
 
 // Method triggered from AppLayout
-function filterByGenre(genre) {
-  selectedGenre.value = genre;
+function filterByGenre(genreSlug) {
+    selectedGenre.value = genreSlug;
 
-  router.reload({
-    data: {
-      genre: genre || null,
-    },
-    preserveState: true,
-    replace: true,
-  });
+    router.reload({
+        data: {
+            genre: genreSlug || null,
+        },
+        preserveState: true,
+        replace: true,
+    });
 }
+
 </script>
