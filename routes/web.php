@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FilmController;
+use App\Http\Controllers\GenreController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -8,6 +9,7 @@ Route::get('/', [FilmController::class, 'index']);
 Route::get('/film/create', [FilmController::class, 'create']);
 Route::get('/film/store', [FilmController::class, 'store']);
 Route::get('/film/{film}', [FilmController::class, 'show']);
+Route::get('/film/genres/{genre:slug}',GenreController::class);
 
 Route::get('/about', function () {
     return Inertia::render('About');

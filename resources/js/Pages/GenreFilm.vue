@@ -1,7 +1,7 @@
 <template>
     <AppLayout
         :genres="allGenres"
-        @genreSelected="filterByGenre"
+        :genre="selectedGenre"
         v-model:search="search"
     >
         <div class="container mb-5">
@@ -38,7 +38,6 @@
                         </li>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -90,7 +89,7 @@
 
 <script setup>
 import { Link, WhenVisible } from "@inertiajs/vue3";
-import AppLayout from "../../layouts/AppLayout.vue";
+import AppLayout from "../layouts/AppLayout.vue";
 import { useFilmFilters } from "@/composables/useFilmFilters";
 
 const {
@@ -98,12 +97,10 @@ const {
     allGenres,
     search,
     sort_by,
-    selectedGenre,
     reachedEnd,
     whenVisibleParams,
     loading,
     sortBy,
-    filterByGenre,
-} = useFilmFilters(true); // allow filtering by genre
+    selectedGenre
+} = useFilmFilters(false); // genre is static in this page, so false
 </script>
-

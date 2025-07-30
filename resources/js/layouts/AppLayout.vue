@@ -30,8 +30,8 @@
                 </ul>
 
                 <!-- genres -->
-                <select @change="emitGenre($event)" class="form-select w-25">
-                    <option value="">All Genres</option>
+                <select v-model="selectedGenre" class="form-select w-25">
+                    <option :value="null">All Genres</option>
                     <option
                         v-for="genre in genres"
                         :key="genre.id"
@@ -57,20 +57,32 @@
 
     <!-- Main Content -->
     <div class="p-5">
+        {{ selectedGenre }}
         <slot></slot>
     </div>
 </template>
 <script setup>
-import { Link } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
+import { ref, watch } from "vue";
 
 const props = defineProps({
     search: String,
     genres: Array, // passed from the page (like Index.vue)
+    genre : String
 });
 
 const emit = defineEmits(["update:search", "genreSelected"]);
 
-function emitGenre(event) {
-    emit("genreSelected", event.target.value);
-}
+
+
+// function to filter by genre
+const selectedGenre = ref( props.genre || null);
+watch(selectedGenre,() => {
+    // load all the films if selected genres is all
+    if(selectedGenre.value == null) {
+        router.get('/');
+        return;
+    }
+    router.get(`/film/genres/${selectedGenre.value}`);
+});
 </script>

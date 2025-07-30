@@ -9,7 +9,6 @@ const film = computed(() => page.props.film);
 
 <template>
     <AppLayout>
-        {{ film.id }}
         <div class="jumbotron p-3 p-md-5 text-white rounded bg-dark">
             <div class="col-md-6 px-0">
                 <img loading="lazy" :src="film.poster" class="card-img-top" :alt="film.title" />
@@ -48,7 +47,9 @@ const film = computed(() => page.props.film);
                             >Genres</strong
                         >
 
-                        <p class="card-text mb-auto">{{ film.genres }}</p>
+                        <p class="card-text mb-auto" v-for="genre in film.genres">
+                            <span>{{ genre.name }}</span>
+                        </p>
                     </div>
                 </div>
             </div>
