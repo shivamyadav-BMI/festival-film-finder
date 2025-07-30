@@ -1,17 +1,19 @@
 import { ref, computed, watch } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
-import { throttle } from "lodash";
+import { debounce, throttle } from "lodash";
 
 export function useFilmFilters(includeGenre = false) {
     const page = usePage();
 
     const films = computed(() => page.props.films?.data || []);
     const reachedEnd = computed(
-        () => page.props.pagination?.current_page >= page.props.pagination?.last_page
+        () =>
+            page.props.pagination?.current_page >=
+            page.props.pagination?.last_page
     );
 
     const allGenres = ref(page.props.genres || []);
-    const search = ref(page.props.search || "");
+    const search = ref(page.props.search || null);
     const sort_by = ref(page.props.sort_by || null);
     const selectedGenre = ref(page.props.genre || null);
     const loading = ref(false);
@@ -21,7 +23,9 @@ export function useFilmFilters(includeGenre = false) {
             page: page.props.pagination?.current_page + 1,
             ...(search.value ? { search: search.value } : {}),
             ...(sort_by.value ? { sort_by: sort_by.value } : {}),
-            ...(includeGenre && selectedGenre.value ? { genre: selectedGenre.value } : {}),
+            // ...(includeGenre && selectedGenre.value
+            //     ? { genre: selectedGenre.value }
+            //     : {}),
         },
         preserveUrl: true,
         preserveState: true,
@@ -42,29 +46,32 @@ export function useFilmFilters(includeGenre = false) {
         [search, sort_by],
         throttle(([searchValue, sortByValue]) => {
             const data = {};
-            if (searchValue?.trim()) data.search = searchValue;
+            const trimmedSearch = searchValue?.trim();
+            data.search = trimmedSearch;
+            // if (trimmedSearch) {
+            //     data.search = trimmedSearch;
+            // }
             if (sortByValue) data.sort_by = sortByValue;
-            if (includeGenre && selectedGenre.value) data.genre = selectedGenre.value;
 
             router.reload({
                 data,
                 preserveState: true,
                 replace: true,
             });
-        }, 1000)
+        }, 500)
     );
 
-    // Optional: For genre dropdown filtering
-    function filterByGenre(genreSlug) {
-        selectedGenre.value = genreSlug;
-        router.reload({
-            data: {
-                genre: genreSlug || null,
-            },
-            preserveState: true,
-            replace: true,
-        });
-    }
+    // // Optional: For genre dropdown filtering
+    // function filterByGenre(genreSlug) {
+    //     selectedGenre.value = genreSlug;
+    //     router.reload({
+    //         data: {
+    //             genre: genreSlug || null,
+    //         },
+    //         preserveState: true,
+    //         replace: true,
+    //     });
+    // }
 
     return {
         films,
@@ -76,6 +83,5 @@ export function useFilmFilters(includeGenre = false) {
         whenVisibleParams,
         loading,
         sortBy,
-        filterByGenre,
     };
 }

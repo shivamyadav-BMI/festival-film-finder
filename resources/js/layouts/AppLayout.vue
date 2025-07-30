@@ -47,8 +47,7 @@
                         class="form-control me-2"
                         type="search"
                         placeholder="Search by title or director"
-                        :value="props.search"
-                        @input="(e) => emit('update:search', e.target.value)"
+                       v-model="search"
                     />
                 </div>
             </div>
@@ -57,13 +56,13 @@
 
     <!-- Main Content -->
     <div class="p-5">
-        {{ selectedGenre }}
         <slot></slot>
     </div>
 </template>
 <script setup>
 import { Link, router } from "@inertiajs/vue3";
 import { ref, watch } from "vue";
+import { useFilmFilters } from "../composables/useFilmFilters";
 
 const props = defineProps({
     search: String,
@@ -73,7 +72,7 @@ const props = defineProps({
 
 const emit = defineEmits(["update:search", "genreSelected"]);
 
-
+const {search, filterByGenre} = useFilmFilters();
 
 // function to filter by genre
 const selectedGenre = ref( props.genre || null);
