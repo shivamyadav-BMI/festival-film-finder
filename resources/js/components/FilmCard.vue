@@ -1,26 +1,24 @@
 <template>
     <div class="container">
-        <div class="row g-4">
+        <div class="row g-5">
             <Link
                 :href="`/film/${film.id}`"
-                class="col-12 col-sm-6 col-md-4"
+                class="col-12 col-sm-6 col-md-4 col-lg-3"
                 v-for="film in films"
                 :key="film.id"
                 prefetch="click"
                 cache-for="30s"
             >
-                <div class="card h-100">
+                <div class="card" >
                     <img
                         :src="film.poster"
-                        class="card-img-top"
                         :alt="film.title"
                         loading="lazy"
+                        class="card-img-top"
                     />
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">{{ film.title }}</h5>
-                        <h5 class="card-title">{{ film.imdb_rating }}</h5>
-                    </div>
+
                 </div>
+
             </Link>
         </div>
         <div v-if="films.length === 0" class="text-center my-5">
@@ -30,9 +28,24 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link } from "@inertiajs/vue3";
 
 defineProps({
     films: Array,
 });
 </script>
+
+<style scoped>
+.movie_card {
+    border: 2;
+    /* width: 100%; */
+    width: 400px;
+    height: 400px;
+}
+
+.movie_image {
+    object-fit: contain;
+    width: 400px;
+    height: 400px;
+}
+</style>

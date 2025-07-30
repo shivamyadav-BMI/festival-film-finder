@@ -23,9 +23,6 @@ export function useFilmFilters(includeGenre = false) {
             page: page.props.pagination?.current_page + 1,
             ...(search.value ? { search: search.value } : {}),
             ...(sort_by.value ? { sort_by: sort_by.value } : {}),
-            // ...(includeGenre && selectedGenre.value
-            //     ? { genre: selectedGenre.value }
-            //     : {}),
         },
         preserveUrl: true,
         preserveState: true,
@@ -33,7 +30,9 @@ export function useFilmFilters(includeGenre = false) {
         replace: false,
         only: ["films", "pagination"],
         onBefore: () => (loading.value = true),
-        onSuccess: () => (loading.value = false),
+        onSuccess: () => {
+            loading.value = false;
+        },
         onFinish: () => (loading.value = false),
     }));
 
@@ -48,11 +47,13 @@ export function useFilmFilters(includeGenre = false) {
             const data = {};
             const trimmedSearch = searchValue?.trim();
             data.search = trimmedSearch;
-            // if (trimmedSearch) {
-            //     data.search = trimmedSearch;
-            // }
+            // data.page = 1;
             if (sortByValue) data.sort_by = sortByValue;
 
+            // Defensive: Immediately reset pagination to not 'stall'
+            // if (page.props.pagination) {
+            //     page.props.pagination.current_page = 1;
+            // }
             router.reload({
                 data,
                 preserveState: true,
@@ -60,18 +61,6 @@ export function useFilmFilters(includeGenre = false) {
             });
         }, 500)
     );
-
-    // // Optional: For genre dropdown filtering
-    // function filterByGenre(genreSlug) {
-    //     selectedGenre.value = genreSlug;
-    //     router.reload({
-    //         data: {
-    //             genre: genreSlug || null,
-    //         },
-    //         preserveState: true,
-    //         replace: true,
-    //     });
-    // }
 
     return {
         films,

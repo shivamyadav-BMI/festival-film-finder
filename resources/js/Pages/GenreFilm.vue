@@ -1,8 +1,5 @@
 <template>
-    <AppLayout
-        :genres="allGenres"
-        :genre="selectedGenre"
-    >
+    <AppLayout :genres="allGenres" :genre="selectedGenre">
         <div class="container mb-5">
             <div class="d-flex justify-end gap-5">
                 <FilterDropDown />
@@ -12,12 +9,15 @@
         <FilmCard :films="films" />
 
         <!-- :key is re render / mounts the when visible component -->
-        <Visible
-            :key="search + '-' + sort_by"
+       <WhenVisible
+            :key="search + '-' + sort_by + '-' + films.length"
             :always="!reachedEnd"
             :params="whenVisibleParams"
-            :loading="loading"
-        />
+        >
+            <template v-if="loading">
+                <div class="text-center py-3">Loading...</div>
+            </template>
+        </WhenVisible>
     </AppLayout>
 </template>
 
@@ -25,8 +25,8 @@
 import AppLayout from "@/layouts/AppLayout.vue";
 import FilmCard from "@/components/FilmCard.vue";
 import { useFilmFilters } from "@/composables/useFilmFilters";
-import Visible from "@/components/Visible.vue";
 import FilterDropDown from "@/components/FilterDropDown.vue";
+import { WhenVisible } from "@inertiajs/vue3";
 
 const {
     films,
