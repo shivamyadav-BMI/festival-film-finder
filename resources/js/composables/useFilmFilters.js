@@ -42,18 +42,12 @@ export function useFilmFilters(includeGenre = false) {
 
     // Watch search and sort changes
     watch(
-        [search, sort_by],
-        throttle(([searchValue, sortByValue]) => {
-            const data = {};
-            const trimmedSearch = searchValue?.trim();
-            data.search = trimmedSearch;
-            // data.page = 1;
-            if (sortByValue) data.sort_by = sortByValue;
+        search,
+        throttle((value) => {
+            const data = {
+                search: value,
+            };
 
-            // Defensive: Immediately reset pagination to not 'stall'
-            // if (page.props.pagination) {
-            //     page.props.pagination.current_page = 1;
-            // }
             router.reload({
                 data,
                 preserveState: true,
@@ -62,6 +56,24 @@ export function useFilmFilters(includeGenre = false) {
         }, 500)
     );
 
+    // Watcher for sort_by
+    watch(
+        sort_by,
+        throttle((value) => {
+            const data = {};
+            if (search.value && search.value.trim() !== "") {
+                data.search = search.value;
+            }
+            if (value && value.trim() !== "") {
+                data.sort_by = value;
+            }
+            router.reload({
+                data,
+                preserveState: true,
+                replace: true,
+            });
+        }, 500)
+    );
     return {
         films,
         reachedEnd,

@@ -33,7 +33,7 @@
                 <select v-model="selectedGenre" class="form-select w-25">
                     <option :value="null">All Genres</option>
                     <option
-                        v-for="genre in genres"
+                        v-for="genre in allGenres"
                         :key="genre.id"
                         :value="genre.slug"
                     >
@@ -55,27 +55,26 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="p-5">
-        <slot></slot>
-    </div>
+   <div class="p-1 p-md-2 p-lg-5">
+    <slot></slot>
+</div>
+
 </template>
 <script setup>
-import { Link, router } from "@inertiajs/vue3";
-import { ref, watch } from "vue";
+import { Link, router, usePage } from "@inertiajs/vue3";
+import { computed, ref, watch } from "vue";
 import { useFilmFilters } from "../composables/useFilmFilters";
 
-const props = defineProps({
-    search: String,
-    genres: Array, // passed from the page (like Index.vue)
-    genre : String
-});
+
+const page = usePage();
 
 const emit = defineEmits(["update:search", "genreSelected"]);
-
-const {search, filterByGenre} = useFilmFilters();
+// const genre = computed(() => page.props.genre );
+const {search,allGenres, filterByGenre} = useFilmFilters();
 
 // function to filter by genre
-const selectedGenre = ref( props.genre || null);
+const selectedGenre = ref( page.props.genre || null);
+
 watch(selectedGenre,() => {
     // load all the films if selected genres is all
     if(selectedGenre.value == null) {

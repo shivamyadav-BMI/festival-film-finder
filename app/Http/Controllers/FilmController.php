@@ -24,36 +24,12 @@ class FilmController extends Controller
         // for searching with title or director
         $search = request()->input('search');
         $sortBy = request()->input('sort_by');
-        $filterByGenres = request()->input('genre');
 
-        $query = VerifiedFilm::query();
-
-        // sorting
-        $query->when($sortBy ?? false, function ($q) use ($sortBy) {
-            //prevents from the any other value allows only asc and dsc
-            if (!in_array(strtolower($sortBy), ['asc', 'desc'])) {
-                // abort(404);
-                return Inertia::render('Errors/NotFound')
-                    ->toResponse(request())
-                    ->setStatusCode(404);
-            }
-            $q->orderBy('imdb_rating', $sortBy);
-        });
-
-        //searching functionality
-        $query->when($search ?? false, function ($q) use ($search) {
-            $q->whereAny(['title'], 'LIKE', "%" . $search . "%");
-        });
-
-        // filter by gernes
-        $query->when($filterByGenres ?? false, function ($que) use ($filterByGenres) {
-            $que->whereHas('genres', function ($q) use ($filterByGenres){
-                $q->where('slug', $filterByGenres);
-            });
-        });
-
-        $films = $query->paginate(10)->withQueryString();
-        // dd($films);
+        // films data
+        $films = VerifiedFilm::filterBySearch($search)
+            ->filterBySort($sortBy)
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Films/Index', [
             'films' => Inertia::deepMerge(fn() => FilmResource::collection($films->items())), //deepmerge for object/array to be nested deep merge
@@ -107,8 +83,10 @@ class FilmController extends Controller
      */
     public function show(VerifiedFilm $film)
     {
+        $genres = Genre::select('name', 'slug')->get();
         return Inertia::render('Films/Show', [
-            'film' => new FilmResource($film)
+            'film' => new FilmResource($film),
+            'genres' => $genres,
         ]);
     }
 

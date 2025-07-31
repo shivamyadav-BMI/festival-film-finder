@@ -1,5 +1,5 @@
 <template>
-    <AppLayout :genres="allGenres">
+    <AppLayout>
         <div class="container mb-5">
             <div class="d-flex justify-end gap-5">
                 <FilterDropDown />
@@ -9,7 +9,34 @@
         <!-- testing cards -->
 
         <!-- films cards -->
-        <FilmCard :films="films" />
+        <div class="container">
+            <h3>Trending Movies</h3>
+
+            <div class="row g-4">
+                <div
+                    class="col-12 col-sm-6 col-md-4 col-lg-3"
+                    v-for="film in films"
+                    :key="film.id"
+                >
+                    <Link
+                        :href="`/film/${film.id}`"
+                        class="text-decoration-none h-100 d-block"
+                        prefetch="click"
+                        cache-for="30s"
+                    >
+                        <FilmCard :film="film" />
+                    </Link>
+                </div>
+            </div>
+
+            <!-- No films found -->
+            <div v-if="films.length === 0" class="text-center my-5">
+                <h4>
+                    No results found for search:
+                    <span class="fw-semibold">{{ search }}</span>
+                </h4>
+            </div>
+        </div>
 
         <!-- :key is re render / mounts the when visible component -->
 
@@ -31,7 +58,6 @@ import AppLayout from "../../layouts/AppLayout.vue";
 import { useFilmFilters } from "@/composables/useFilmFilters";
 import FilterDropDown from "../../components/FilterDropDown.vue";
 import FilmCard from "../../components/FilmCard.vue";
-import { onMounted, onUnmounted } from "vue";
 
 const {
     films,
