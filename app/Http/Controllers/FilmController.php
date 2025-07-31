@@ -25,6 +25,11 @@ class FilmController extends Controller
         $search = request()->input('search');
         $sortBy = request()->input('sort_by');
 
+        // if sort by value does not match with asc or desc abort
+        if($sortBy && !in_array($sortBy, ['asc', 'desc']))
+        {
+            return Inertia::render('Errors/NotFound')->toResponse(request())->setStatusCode(404);
+        }
         // films data
         $films = VerifiedFilm::filterBySearch($search)
             ->filterBySort($sortBy)

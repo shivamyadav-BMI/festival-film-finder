@@ -45,8 +45,8 @@
             :always="!reachedEnd"
             :params="whenVisibleParams"
         >
-            <template v-if="loading">
-                <div class="text-center py-3">Loading...</div>
+            <template #fallback>
+                <Spinner/>
             </template>
         </WhenVisible>
     </AppLayout>
@@ -58,14 +58,15 @@ import AppLayout from "../../layouts/AppLayout.vue";
 import { useFilmFilters } from "@/composables/useFilmFilters";
 import FilterDropDown from "../../components/FilterDropDown.vue";
 import FilmCard from "../../components/FilmCard.vue";
+import Spinner from "../../components/Spinner.vue";
 
 const {
     films,
-    allGenres,
     search,
     sort_by,
     reachedEnd,
     whenVisibleParams,
-    loading,
 } = useFilmFilters(true); // allow filtering by genre
 </script>
+
+
