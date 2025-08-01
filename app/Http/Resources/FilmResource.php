@@ -26,8 +26,8 @@ class FilmResource extends JsonResource
             'poster' => $this->poster,
             'imdb_rating' => $this->imdb_rating,
             'plot_summary' => $this->plot_summary,
-            // 'rotten_tomatoes_rating' => $this->rotten_tomatoes_rating,
-            // 'metacritic_rating' => $this->metacritic_rating,
+            'rotten_tomatoes_rating' => $this->rotten_tomatoes_rating,
+            'metacritic_rating' => $this->metacritic_rating,
         ];
     }
 }

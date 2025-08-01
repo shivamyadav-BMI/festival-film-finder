@@ -1,54 +1,51 @@
 <template>
     <AppLayout>
-        <div class="container mb-5">
-            <div class="d-flex justify-end gap-5">
+        <div class="max-w-6xl mx-auto">
+            <div class="my-10 px-4 flex justify-between itens-center gap-6">
+                <h3 class="md:text-2xl">Trending Movies</h3>
                 <FilterDropDown />
             </div>
-        </div>
 
-        <!-- testing cards -->
-
-        <!-- films cards -->
-        <div class="container">
-            <h3>Trending Movies</h3>
-
-            <div class="row g-4">
+            <!-- films cards -->
+            <div class="px-4">
                 <div
-                    class="col-12 col-sm-6 col-md-4 col-lg-3"
-                    v-for="film in films"
-                    :key="film.id"
+                    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
                 >
                     <Link
+                        v-for="film in films"
+                        :key="film.id"
                         :href="`/film/${film.id}`"
-                        class="text-decoration-none h-100 d-block"
                         prefetch="click"
                         cache-for="30s"
+                        class="block"
                     >
                         <FilmCard :film="film" />
                     </Link>
                 </div>
             </div>
 
-            <!-- No films found -->
-            <div v-if="films.length === 0" class="text-center my-5">
-                <h4>
-                    No results found for search:
-                    <span class="fw-semibold">{{ search }}</span>
-                </h4>
+            <!-- no film found based on your search -->
+            <div v-if="films.length == 0" class="flex justify-center w-full items-center h-[70vh]">
+                <h2>
+                    No result found for search
+                    <span class="text-center text-orange-600">{{
+                        search
+                    }}</span>
+                </h2>
             </div>
+
+            <!-- :key is re render / mounts the when visible component -->
+
+            <WhenVisible
+                :key="search + '-' + sort_by + '-' + films.length"
+                :always="!reachedEnd"
+                :params="whenVisibleParams"
+            >
+                <template #fallback>
+                    <Spinner />
+                </template>
+            </WhenVisible>
         </div>
-
-        <!-- :key is re render / mounts the when visible component -->
-
-        <WhenVisible
-            :key="search + '-' + sort_by + '-' + films.length"
-            :always="!reachedEnd"
-            :params="whenVisibleParams"
-        >
-            <template #fallback>
-                <Spinner/>
-            </template>
-        </WhenVisible>
     </AppLayout>
 </template>
 
@@ -59,14 +56,10 @@ import { useFilmFilters } from "@/composables/useFilmFilters";
 import FilterDropDown from "../../components/FilterDropDown.vue";
 import FilmCard from "../../components/FilmCard.vue";
 import Spinner from "../../components/Spinner.vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
-const {
-    films,
-    search,
-    sort_by,
-    reachedEnd,
-    whenVisibleParams,
-} = useFilmFilters(true); // allow filtering by genre
+const { films, search, sort_by, reachedEnd, whenVisibleParams } =
+    useFilmFilters(true); // allow filtering by genre
 </script>
 
-
+<style></style>

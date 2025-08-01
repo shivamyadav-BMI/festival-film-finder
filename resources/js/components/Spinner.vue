@@ -1,5 +1,5 @@
 <template>
-    <div class="d-flex justify-content-center my-5">
+    <div class="flex justify-center my-5">
         <div class="loader"></div>
     </div>
 </template>
@@ -11,7 +11,7 @@
     aspect-ratio: 1;
     border-radius: 50%;
     padding: 1px;
-    background: conic-gradient(#0000 10%, #1808ce) content-box;
+    background: conic-gradient(#0000 10%, #de5105) content-box;
     -webkit-mask: repeating-conic-gradient(
             #0000 0deg,
             #000 1deg 20deg,

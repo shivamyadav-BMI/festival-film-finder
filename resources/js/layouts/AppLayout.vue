@@ -1,86 +1,205 @@
 <template>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarTogglerDemo01"
-                aria-controls="navbarTogglerDemo01"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
+    <div class="flex flex-col min-h-screen">
+        <!-- NAVIGATION BAR -->
+        <nav
+            class="relative bg-black sticky w-full z-30 -top-1 start-0 border-b border-gray-200"
+        >
+            <div
+                class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"
             >
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-                <Link href="/" class="navbar-brand">Festival Film Finder</Link>
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <Link
-                            href="/"
-                            class="nav-link active"
-                            aria-current="page"
-                            >Home</Link
-                        >
-                    </li>
-                    <li class="nav-item">
-                        <Link href="/about" class="nav-link">About</Link>
-                    </li>
-                </ul>
-
-                <!-- genres -->
-                <select v-model="selectedGenre" class="form-select w-25">
-                    <option :value="null">All Genres</option>
-                    <option
-                        v-for="genre in allGenres"
-                        :key="genre.id"
-                        :value="genre.slug"
+                <Link
+                    href="/"
+                    class="flex items-center space-x-3 rtl:space-x-reverse"
+                >
+                    <Link href="/"
+                        class="text-orange-600 self-center text-xs md:text-sm lg:text-2xl uppercase font-semibold whitespace-nowrap dark:text-white"
                     >
-                        {{ genre.name }}
-                    </option>
-                </select>
+                        Festival Film Finder
+                    </Link>
+                </Link>
 
-                <!-- Search Input -->
-                <div class="p-3 w-25">
-                    <input
-                        class="form-control me-2"
-                        type="search"
-                        placeholder="Search by title or director"
-                       v-model="search"
-                    />
+                <!-- RIGHT SIDE BUTTONS -->
+                <div
+                    class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse"
+                >
+                    <!-- Search (Desktop input + Mobile icon) -->
+                    <div>
+                        <input
+                            v-model="search"
+                            type="search"
+                            class="hidden lg:block text-white border-white border font-medium rounded-lg text-sm px-4 py-2"
+                        />
+
+                        <!-- Mobile Search Icon -->
+                        <div
+                            class="sm:hidden cursor-pointer"
+                            @click="openSearch = true"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-search-icon lucide-search"
+                            >
+                                <path d="m21 21-4.34-4.34" />
+                                <circle cx="11" cy="11" r="8" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Menu Toggle -->
+                    <button
+                        type="button"
+                        class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                        aria-controls="navbar-sticky"
+                        aria-expanded="false"
+                    >
+                        <span class="sr-only">Open main menu</span>
+                        <svg
+                            class="w-5 h-5"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 17 14"
+                        >
+                            <path
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M1 1h15M1 7h15M1 13h15"
+                            />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- NAV LINKS -->
+                <div
+                    class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
+                    id="navbar-sticky"
+                >
+                    <ul
+                        class="flex flex-col p-4 md:p-0 mt-4 font-medium border  rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 "
+                    >
+                        <li>
+                            <Link
+                                href="/"
+                                class="block py-2 px-3 text-white  rounded-sm   md:p-0 "
+                                aria-current="page"
+                                >Home</Link
+                            >
+                        </li>
+                        <li>
+                            <Link
+                                href="/about"
+                                class="block py-2 px-3  rounded-sm md:p-0 "
+                                >About</Link
+                            >
+                        </li>
+                    </ul>
                 </div>
             </div>
+
+            <!-- MOBILE SEARCH OVERLAY -->
+            <transition name="fade-slide">
+                <div
+                    v-show="openSearch"
+                    @click.self="openSearch = false"
+                    class="absolute top-0 left-0 bg-orange-600 z-50 w-full h-full text-white transition-all duration-300 ease-in-out transform"
+                    :class="
+                        openSearch
+                            ? 'opacity-100 translate-y-0'
+                            : 'opacity-0 -translate-y-10'
+                    "
+                >
+                    <div
+                        class="flex px-3 justify-between gap-5 items-center h-full max-w-screen-lg mx-auto"
+                    >
+                        <input
+                            type="search"
+                            v-model="search"
+                            class="border border-white bg-white text-black w-full rounded-xl p-2"
+                            placeholder="Search..."
+                        />
+                        <!-- Close Icon -->
+                        <div
+                            @click="openSearch = false"
+                            class="text-white font-semibold text-xl cursor-pointer"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-x-icon lucide-x"
+                            >
+                                <path d="M18 6 6 18" />
+                                <path d="m6 6 12 12" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+        </nav>
+
+        <!-- MOBILE NAVBAR -->
+
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 px-5 md:px-0">
+            <slot></slot>
         </div>
-    </nav>
 
-    <!-- Main Content -->
-   <div class="p-1 p-md-2 p-lg-5">
-    <slot></slot>
-</div>
-
+        <!-- FOOTER -->
+        <footer
+            class="bg-black border-t mt-auto border border-black border-opacity-5 px-2 rounded-xl text-center md:px-10"
+        >
+            <div class="mt-10">
+                &copy; 2025
+                <Link href="/" class="text-orange-500 hover:text-orange-600"
+                    >Festival Film Finder</Link
+                >. All rights reserved.
+            </div>
+        </footer>
+    </div>
 </template>
+
 <script setup>
-import { Link, router, usePage } from "@inertiajs/vue3";
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
+import { Link, usePage } from "@inertiajs/vue3";
 import { useFilmFilters } from "../composables/useFilmFilters";
 
-
 const page = usePage();
-
 const emit = defineEmits(["update:search", "genreSelected"]);
-// const genre = computed(() => page.props.genre );
-const {search,allGenres, filterByGenre} = useFilmFilters();
+const { search, allGenres, filterByGenre } = useFilmFilters();
+const selectedGenre = ref(page.props.genre || null);
+const openSearch = ref(false);
 
-// function to filter by genre
-const selectedGenre = ref( page.props.genre || null);
-
-watch(selectedGenre,() => {
-    // load all the films if selected genres is all
-    if(selectedGenre.value == null) {
-        router.get('/');
-        return;
+watch(selectedGenre, () => {
+    if (selectedGenre.value == null) {
+        router.get("/");
+    } else {
+        router.get(`/film/genres/${selectedGenre.value}`);
     }
-    router.get(`/film/genres/${selectedGenre.value}`);
 });
 </script>
+
+<style scoped>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.fade-slide-enter,
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+</style>
