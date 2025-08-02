@@ -1,6 +1,6 @@
 <template>
     <AppLayout>
-        <div class="max-w-6xl mx-auto">
+        <div class="">
             <div class="my-10 px-4 flex justify-between itens-center gap-6">
                 <h3 class="md:text-2xl">Trending Movies</h3>
                 <FilterDropDown />
@@ -30,10 +30,7 @@
                 class="flex justify-center w-full items-center h-[70vh]"
             >
                 <h2>
-                    No result found for search
-                    <span class="text-center text-orange-600">{{
-                        search
-                    }}</span>
+                    No result found.
                 </h2>
             </div>
 

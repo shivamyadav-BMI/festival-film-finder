@@ -1,9 +1,21 @@
 /** @type {import('tailwindcss').Config} */
-export default {
-  content: [],
+module.exports = {
+  content: [
+    "./resources/**/*.blade.php",
+    "./resources/**/*.js",
+    "./resources/**/*.vue",
+  ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        orange: {
+          500: '#f94316ff', // now bg-orange-500 uses this
+        },
+      },
+      fontFamily: {
+        fjalla: ["'Fjalla One'", 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 }
-

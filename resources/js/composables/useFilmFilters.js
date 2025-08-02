@@ -1,9 +1,10 @@
-import { ref, computed, watch } from "vue";
-import { usePage, router } from "@inertiajs/vue3";
-import { debounce, throttle } from "lodash";
+import { computed,ref } from "vue";
+import { usePage } from "@inertiajs/vue3";
+import { useFilmSearchSort } from "./useFilmSearchSort"; // ✅ Correct
 
 export function useFilmFilters(includeGenre = false) {
     const page = usePage();
+    const { search, sort_by } = useFilmSearchSort(); // ✅ Correct
 
     const films = computed(() => page.props.films?.data || []);
     const reachedEnd = computed(
@@ -12,10 +13,8 @@ export function useFilmFilters(includeGenre = false) {
             page.props.pagination?.last_page
     );
 
-    const allGenres = ref(page.props.genres || []);
-    const search = ref(page.props.search || null);
-    const sort_by = ref(page.props.sort_by || null);
-    const selectedGenre = ref(page.props.genre || null);
+    const allGenres = computed(() => page.props.genres || []);
+    const selectedGenre = computed(() => page.props.genre || null);
     const loading = ref(false);
 
     const whenVisibleParams = computed(() => ({
@@ -30,9 +29,7 @@ export function useFilmFilters(includeGenre = false) {
         replace: false,
         only: ["films", "pagination"],
         onBefore: () => (loading.value = true),
-        onSuccess: () => {
-            loading.value = false;
-        },
+        onSuccess: () => (loading.value = false),
         onFinish: () => (loading.value = false),
     }));
 
@@ -40,41 +37,6 @@ export function useFilmFilters(includeGenre = false) {
         sort_by.value = value;
     }
 
-    // Watch search and sort changes
-    watch(
-        search,
-        debounce((value) => {
-            const data = {
-                search: value,
-            };
-
-            router.reload({
-                data,
-                preserveState: true,
-                replace: true,
-            });
-        }, 300)
-    );
-
-    // Watcher for sort_by
-    watch(
-        sort_by,
-        debounce((value) => {
-            const data = {};
-            if (search.value && search.value.trim() !== "") {
-                data.search = search.value;
-            }
-            if (value && value.trim() !== "") {
-                data.sort_by = value;
-            }
-            router.reload({
-                data,
-                preserveState: true,
-                replace: true,
-
-            });
-        }, 300)
-    );
     return {
         films,
         reachedEnd,

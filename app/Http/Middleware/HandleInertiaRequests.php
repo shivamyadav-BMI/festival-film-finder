@@ -39,7 +39,8 @@ class HandleInertiaRequests extends Middleware
         $genres = Genre::select('name', 'slug')->get();
         return [
             ...parent::share($request),
-            'genres' => $genres
+            'genres' => $genres,
+            'current_url' =>  $request->path(),
             //
         ];
     }

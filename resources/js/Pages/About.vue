@@ -169,7 +169,7 @@ import AppLayout from "../layouts/AppLayout.vue";
                             </svg>
                         </div>
                         <h2
-                            class="text-white text-base font-bold leading-tight"
+                            class="text-white text-base leading-tight"
                         >
                             Watchlist Integration
                         </h2>
