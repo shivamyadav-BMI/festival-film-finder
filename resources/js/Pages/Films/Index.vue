@@ -6,7 +6,7 @@
                 <FilterDropDown />
             </div>
 
-            <!-- films cards -->
+            <!-- film cards -->
             <div class="px-4">
                 <div
                     class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
@@ -25,7 +25,10 @@
             </div>
 
             <!-- no film found based on your search -->
-            <div v-if="films.length == 0" class="flex justify-center w-full items-center h-[70vh]">
+            <div
+                v-if="films.length == 0"
+                class="flex justify-center w-full items-center h-[70vh]"
+            >
                 <h2>
                     No result found.
                 </h2>
@@ -47,16 +50,13 @@
 </template>
 
 <script setup>
-import { Link, WhenVisible } from "@inertiajs/vue3";
-import AppLayout from "../../layouts/AppLayout.vue";
+import AppLayout from "@/layouts/AppLayout.vue";
+import FilmCard from "@/components/FilmCard.vue";
 import { useFilmFilters } from "@/composables/useFilmFilters";
-import FilterDropDown from "../../components/FilterDropDown.vue";
-import FilmCard from "../../components/FilmCard.vue";
+import FilterDropDown from "@/components/FilterDropDown.vue";
+import { Link, WhenVisible } from "@inertiajs/vue3";
 import Spinner from "../../components/Spinner.vue";
-import { ref, onMounted, onBeforeUnmount } from "vue";
 
-const { films, search, sort_by, reachedEnd, whenVisibleParams } =
-    useFilmFilters(true); // allow filtering by genre
+const { films, search, sort_by, reachedEnd, whenVisibleParams, loading } =
+    useFilmFilters(false);
 </script>
-
-<style></style>
