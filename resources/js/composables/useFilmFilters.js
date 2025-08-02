@@ -43,7 +43,7 @@ export function useFilmFilters(includeGenre = false) {
     // Watch search and sort changes
     watch(
         search,
-        throttle((value) => {
+        debounce((value) => {
             const data = {
                 search: value,
             };
@@ -53,13 +53,13 @@ export function useFilmFilters(includeGenre = false) {
                 preserveState: true,
                 replace: true,
             });
-        }, 500)
+        }, 300)
     );
 
     // Watcher for sort_by
     watch(
         sort_by,
-        throttle((value) => {
+        debounce((value) => {
             const data = {};
             if (search.value && search.value.trim() !== "") {
                 data.search = search.value;
@@ -71,8 +71,9 @@ export function useFilmFilters(includeGenre = false) {
                 data,
                 preserveState: true,
                 replace: true,
+
             });
-        }, 500)
+        }, 300)
     );
     return {
         films,

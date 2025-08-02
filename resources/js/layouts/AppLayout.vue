@@ -11,7 +11,8 @@
                     href="/"
                     class="flex items-center space-x-3 rtl:space-x-reverse"
                 >
-                    <Link href="/"
+                    <Link
+                        href="/"
                         class="text-orange-600 self-center text-xs md:text-sm lg:text-2xl uppercase font-semibold whitespace-nowrap dark:text-white"
                     >
                         Festival Film Finder
@@ -54,6 +55,7 @@
 
                     <!-- Mobile Menu Toggle -->
                     <button
+                        @click="openMobileSidebar"
                         type="button"
                         class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
                         aria-controls="navbar-sticky"
@@ -83,12 +85,13 @@
                     id="navbar-sticky"
                 >
                     <ul
-                        class="flex flex-col p-4 md:p-0 mt-4 font-medium border  rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 "
+                        class="flex flex-col p-4 md:p-0 mt-4 font-medium border rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0"
                     >
                         <li>
                             <Link
                                 href="/"
-                                class="block py-2 px-3 text-white  rounded-sm   md:p-0 "
+                                class="block py-2 px-3 text-white rounded-sm md:p-0"
+                                :class="{ 'text-orange-500': urlIs('/') }"
                                 aria-current="page"
                                 >Home</Link
                             >
@@ -96,7 +99,7 @@
                         <li>
                             <Link
                                 href="/about"
-                                class="block py-2 px-3  rounded-sm md:p-0 "
+                                class="block py-2 px-3 rounded-sm md:p-0"
                                 >About</Link
                             >
                         </li>
@@ -151,6 +154,60 @@
         </nav>
 
         <!-- MOBILE NAVBAR -->
+        <aside
+            v-if="isOpen"
+            :class="[
+                'fixed top-0 right-0 h-full w-3/4 max-w-sm  z-50 shadow-lg transform transition-transform ease-in-out duration-300',
+                isOpen ? 'translate-x-0' : 'translate-x-full',
+            ]"
+            class="bg-black w-64 border-r fixed h-screen z-50 shadow"
+        >
+            <div class="py-5 px-4">
+                <div  class="mb-10 text-md text-orange-500 uppercase">
+                    <span class="" title="close sidebar" @click="closeMobileSidebar">
+                        <PanelRightClose />
+                    </span>
+                </div>
+                <div class="flex flex-col gap-5">
+                    <Link href="/" class="hover:text-orange-600">Home</Link>
+                    <Link href="/about" class="hover:text-orange-600"
+                        >About</Link
+                    >
+
+                    <div class="w-full space-y-2">
+                        <button
+                            @click="toggleGenreDropdown"
+                            class="flex justify-between gap-2 border p-2 w-full text-start rounded"
+                        >
+                            <span>All Genres</span>
+                            <!-- open icon -->
+                            <div v-if="!isGenreDropdownOpen">
+                                <ChevronDown />
+                            </div>
+                            <div v-if="isGenreDropdownOpen">
+                                <ChevronUp />
+                            </div>
+                        </button>
+                        <!-- all genres dropdown  -->
+                        <div
+                            v-if="isGenreDropdownOpen"
+                            class="bg- border rounded-md h-72 z-32 shadow overflow-y-auto"
+                        >
+                            <Link
+                                class="hover:bg-orange-600 block p-2 mb-1"
+                                :class="{
+                                    'bg-orange-500':
+                                        usePage().props?.genre == genre.slug,
+                                }"
+                                :href="`/film/genres/${genre.slug}`"
+                                v-for="genre in allGenres"
+                                >{{ genre.name }}</Link
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
 
         <!-- MAIN CONTENT -->
         <div class="flex-1 px-5 md:px-0">
@@ -159,9 +216,9 @@
 
         <!-- FOOTER -->
         <footer
-            class="bg-black border-t mt-auto border border-black border-opacity-5 px-2 rounded-xl text-center md:px-10"
+            class="bg-black border-t mt-auto border-opacity-5 px-2 text-center md:px-10"
         >
-            <div class="mt-10">
+            <div class="my-5">
                 &copy; 2025
                 <Link href="/" class="text-orange-500 hover:text-orange-600"
                     >Festival Film Finder</Link
@@ -173,14 +230,22 @@
 
 <script setup>
 import { ref, watch } from "vue";
-import { Link, usePage } from "@inertiajs/vue3";
+import { Link, router, usePage } from "@inertiajs/vue3";
 import { useFilmFilters } from "../composables/useFilmFilters";
+import { computed } from "vue";
+import { ChevronDown, ChevronUp, PanelRightClose } from "lucide-vue-next";
 
 const page = usePage();
 const emit = defineEmits(["update:search", "genreSelected"]);
 const { search, allGenres, filterByGenre } = useFilmFilters();
 const selectedGenre = ref(page.props.genre || null);
 const openSearch = ref(false);
+
+// active url
+const currentUrl = computed(() => router.page.url);
+function urlIs(url) {
+    return currentUrl == url;
+}
 
 watch(selectedGenre, () => {
     if (selectedGenre.value == null) {
@@ -189,6 +254,23 @@ watch(selectedGenre, () => {
         router.get(`/film/genres/${selectedGenre.value}`);
     }
 });
+
+// close and open the mobile navbar
+const isOpen = ref(false);
+
+function openMobileSidebar() {
+    isOpen.value = true;
+}
+
+function closeMobileSidebar() {
+    isOpen.value = false;
+}
+
+// all genres dropdown open and close
+const isGenreDropdownOpen = ref(false);
+function toggleGenreDropdown() {
+    isGenreDropdownOpen.value = !isGenreDropdownOpen.value;
+}
 </script>
 
 <style scoped>

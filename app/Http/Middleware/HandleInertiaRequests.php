@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Genre;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,8 +36,10 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $genres = Genre::select('name', 'slug')->get();
         return [
             ...parent::share($request),
+            'genres' => $genres
             //
         ];
     }

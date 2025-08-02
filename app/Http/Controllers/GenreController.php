@@ -14,8 +14,7 @@ class GenreController extends Controller
     public function __invoke(Genre $genre)
     {
 
-        // dd($genre);
-        $genres = Genre::select('name', 'slug')->get();
+        // $genres = Genre::select('name', 'slug')->get();
 
         // for searching with title or director
         $search = request()->input('search');
@@ -37,7 +36,7 @@ class GenreController extends Controller
             'pagination' => Arr::except($films->toArray(), 'data'),
             'search' => $search,
             'sort_by' => $sortBy,
-            'genres' => $genres,
+            // 'genres' => $genres,
             'genre' => $genre->slug,
         ]);
     }
