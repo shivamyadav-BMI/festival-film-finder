@@ -27,6 +27,7 @@
                     <div>
                         <input
                             v-model="search"
+                            ref="searchInputRef"
                             type="search"
                             class="hidden lg:block text-black border-white border font-medium rounded-lg text-sm px-4 py-2"
                         />
@@ -85,13 +86,17 @@
                     id="navbar-sticky"
                 >
                     <ul
-                        class="flex flex-col p-4 md:p-0 mt-4 font-medium border rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0"
+                        class="flex flex-col items-center p-4 md:p-0 mt-4 font-medium border rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0"
                     >
                         <li>
                             <Link
                                 href="/"
-                                class="block py-2 px-3 text-white rounded-sm md:p-0"
-                                :class="{ 'text-orange-500': urlIs('/') }"
+                                class="block py-2 px-3 text-lg rounded-sm md:p-0"
+                                :class="
+                                    urlIs('/')
+                                        ? 'text-orange-500'
+                                        : 'text-white hover:text-orange-600'
+                                "
                                 aria-current="page"
                                 >Home</Link
                             >
@@ -99,9 +104,48 @@
                         <li>
                             <Link
                                 href="/about"
-                                class="block py-2 px-3 rounded-sm md:p-0"
+                                class="block py-2 text-lg px-3 rounded-sm md:p-0"
+                                :class="
+                                    urlIs('about')
+                                        ? 'text-orange-500'
+                                        : 'text-white hover:text-orange-600'
+                                "
                                 >About</Link
                             >
+                        </li>
+                        <li>
+                            <div class="w-full space-y-2">
+                                <button
+                                    @click="toggleGenreDropdown"
+                                    class="relative flex justify-between gap-2 border p-2 w-full text-start rounded"
+                                >
+                                    <span>All Genres</span>
+                                    <!-- open icon -->
+                                    <div v-if="!isGenreDropdownOpen">
+                                        <ChevronDown />
+                                    </div>
+                                    <div v-if="isGenreDropdownOpen">
+                                        <ChevronUp />
+                                    </div>
+                                </button>
+                                <!-- all genres dropdown  -->
+                                <div
+                                    v-if="isGenreDropdownOpen"
+                                    class="absolute border rounded-md h-72 z-32 shadow-xl bg-black overflow-y-auto"
+                                >
+                                    <Link
+                                        class="hover:bg-orange-600 block p-2 mb-1"
+                                        :class="{
+                                            'bg-orange-500':
+                                                usePage().props?.genre ==
+                                                genre.slug,
+                                        }"
+                                        :href="`/film/genres/${genre.slug}`"
+                                        v-for="genre in allGenres"
+                                        >{{ genre.name }}</Link
+                                    >
+                                </div>
+                            </div>
                         </li>
                     </ul>
                 </div>
@@ -125,6 +169,7 @@
                         <input
                             type="search"
                             v-model="search"
+                           ref="mobileSearchRef"
                             class="border border-white bg-white text-black w-full rounded-xl p-2"
                             placeholder="Search..."
                         />
@@ -163,8 +208,12 @@
             class="bg-black w-64 border-r fixed h-screen z-50 shadow"
         >
             <div class="py-5 px-4">
-                <div  class="mb-10 text-md text-orange-500 uppercase">
-                    <span class="" title="close sidebar" @click="closeMobileSidebar">
+                <div class="mb-10 text-md text-orange-500 uppercase">
+                    <span
+                        class=""
+                        title="close sidebar"
+                        @click="closeMobileSidebar"
+                    >
                         <PanelRightClose />
                     </span>
                 </div>
@@ -210,7 +259,7 @@
         </aside>
 
         <!-- MAIN CONTENT -->
-        <div class="flex-1 px-5 md:px-0 mb-20 max-w-6xl mx-auto">
+        <div class="flex-1 px-5 md:px-0 mb-20">
             <slot></slot>
         </div>
 
@@ -229,22 +278,29 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { Link, router, usePage } from "@inertiajs/vue3";
 import { useFilmFilters } from "../composables/useFilmFilters";
 import { computed } from "vue";
 import { ChevronDown, ChevronUp, PanelRightClose } from "lucide-vue-next";
+import { nextTick } from "vue";
 
 const page = usePage();
-const emit = defineEmits(["update:search", "genreSelected"]);
-const { search, allGenres, filterByGenre } = useFilmFilters();
+// const emit = defineEmits(["update:search", "genreSelected"]);
+const searchInputRef = ref(null);
+const mobileSearchRef = ref(null);
+
+const { search, allGenres, filterByGenre } = useFilmFilters(
+    false,
+    searchInputRef
+);
 const selectedGenre = ref(page.props.genre || null);
 const openSearch = ref(false);
 
 // active url
-const currentUrl = computed(() => router.page.url);
+const currentUrl = computed(() => page.props.current_url);
 function urlIs(url) {
-    return currentUrl == url;
+    return currentUrl.value == url;
 }
 
 watch(selectedGenre, () => {
@@ -271,6 +327,26 @@ const isGenreDropdownOpen = ref(false);
 function toggleGenreDropdown() {
     isGenreDropdownOpen.value = !isGenreDropdownOpen.value;
 }
+
+// const searchInputRef = ref(null);
+watch(openSearch, (isOpen) => {
+    if (isOpen) {
+        nextTick(() => {
+            mobileSearchRef.value?.focus();
+        });
+    }
+});
+
+onMounted(() => {
+    if (search.value?.trim() == null) return;
+    if (page.props.current_url == "/") {
+        nextTick(() => {
+            setTimeout(() => {
+                searchInputRef.value?.focus();
+            }, 100);
+        });
+    }
+});
 </script>
 
 <style scoped>

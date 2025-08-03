@@ -1,7 +1,7 @@
 <template>
     <AppLayout>
-        <div class="">
-            <div class="my-10 px-4 flex justify-between itens-center gap-6">
+        <div class="mx-auto max-w-6xl">
+            <div class="my-10 px-4 w-full flex justify-between items-center gap-6">
                 <h3 class="md:text-2xl">Trending Movies</h3>
                 <FilterDropDown />
             </div>

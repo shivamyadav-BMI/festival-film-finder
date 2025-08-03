@@ -1,8 +1,8 @@
 <template>
     <AppLayout>
-        <div class="flex flex-col lg:flex-row gap-10 my-10">
+        <div class="flex flex-col lg:flex-row gap-10 my-10 mx-auto max-w-6xl">
             <div class="px-4 lg:w-1/3 lg:sticky lg:top-[80px] lg:self-start">
-                <div class="w-full h-[70vh] overflow-hidden aspect-square">
+                <div class="w-[85vw] md:w-full  md:h-[60vh]  lg:h-[70vh] overflow-hidden aspect-square">
                     <img
                         :src="film.poster"
                         class="w-full h-full object- rounded-lg"

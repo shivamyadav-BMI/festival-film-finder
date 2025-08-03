@@ -1,6 +1,8 @@
 <script setup>
+import { useFilmFilters } from "../composables/useFilmFilters";
 import AppLayout from "../layouts/AppLayout.vue";
-
+// const {search} =
+//     useFilmFilters(false);
 </script>
 
 <template>

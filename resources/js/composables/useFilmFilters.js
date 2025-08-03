@@ -1,10 +1,12 @@
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, nextTick } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
 import { debounce, throttle } from "lodash";
 
-export function useFilmFilters(includeGenre = false) {
+export function useFilmFilters(includeGenre = false, searchInputRef = null) {
     const page = usePage();
+    // const searchInputRef = ref(null);
 
+    const currentUrl = computed(() => page.props.current_url);
     const films = computed(() => page.props.films?.data || []);
     const reachedEnd = computed(
         () =>
@@ -40,6 +42,24 @@ export function useFilmFilters(includeGenre = false) {
         sort_by.value = value;
     }
 
+    //   watch(
+    //         () => currentUrl.value, // Watch the value of currentUrl
+    //         throttle((value) => {
+    //             const data = {
+    //                 search: value,
+    //             };
+
+    //             // Only trigger reload if the current path isn't '/'
+    //             if (currentUrl.value !== "/") {
+    //                 router.get("/", {
+    //                     // Pass search parameter directly in query
+    //                     query: { search: data.search },
+    //                     preserveState: true,
+    //                     replace: true,
+    //                 });
+    //             }
+    //         }, 300)
+    //     );
     // Watch search and sort changes
     watch(
         search,
@@ -48,11 +68,40 @@ export function useFilmFilters(includeGenre = false) {
                 search: value,
             };
 
-            router.reload({
-                data,
-                preserveState: true,
-                replace: true,
-            });
+            // testing
+            if (
+                (currentUrl.value.startsWith("film/") &&
+                    !currentUrl.value.startsWith("film/genres/")) ||
+                currentUrl.value == "about"
+            ) {
+                router.visit("/", {
+                    data,
+                    preserveState: true,
+                    replace: true,
+                    // onFinish: () => {
+                    //     nextTick(() => {
+                    //         setTimeout(() => {
+                    //             console.log(
+                    //                 "Trying to focus",
+                    //                 searchInputRef.value
+                    //             );
+                    //             searchInputRef.value?.focus();
+                    //         }, 500); // give DOM time to update
+                    //     });
+                    // },
+                });
+            } else {
+                router.reload({
+                    data,
+                    preserveState: true,
+                    replace: true,
+                    onFinish: () => {
+                        setTimeout(() => {
+                            searchInputRef.value?.focus();
+                        }, 100);
+                    },
+                });
+            }
         }, 300)
     );
 
@@ -71,12 +120,12 @@ export function useFilmFilters(includeGenre = false) {
                 data,
                 preserveState: true,
                 replace: true,
-
             });
         }, 300)
     );
     return {
         films,
+        searchInputRef,
         reachedEnd,
         allGenres,
         search,
