@@ -78,17 +78,7 @@ export function useFilmFilters(includeGenre = false, searchInputRef = null) {
                     data,
                     preserveState: true,
                     replace: true,
-                    // onFinish: () => {
-                    //     nextTick(() => {
-                    //         setTimeout(() => {
-                    //             console.log(
-                    //                 "Trying to focus",
-                    //                 searchInputRef.value
-                    //             );
-                    //             searchInputRef.value?.focus();
-                    //         }, 500); // give DOM time to update
-                    //     });
-                    // },
+
                 });
             } else {
                 router.reload({

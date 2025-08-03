@@ -2,7 +2,7 @@
     <AppLayout>
         <div class="max-w-6xl mx-auto">
             <div class="my-10 px-4 flex justify-between itens-center gap-6">
-                <h3 class="md:text-2xl">Trending Movies</h3>
+                <h3 class="md:text-2xl">Genres {{ genre }} Movies</h3>
                 <FilterDropDown />
             </div>
 
@@ -54,9 +54,11 @@ import AppLayout from "@/layouts/AppLayout.vue";
 import FilmCard from "@/components/FilmCard.vue";
 import { useFilmFilters } from "@/composables/useFilmFilters";
 import FilterDropDown from "@/components/FilterDropDown.vue";
-import { Link, WhenVisible } from "@inertiajs/vue3";
+import { Link, usePage, WhenVisible } from "@inertiajs/vue3";
 import Spinner from "../components/Spinner.vue";
+import { computed } from "vue";
 
-const { films, search, sort_by, reachedEnd, whenVisibleParams, loading } =
+const { films, search, sort_by, reachedEnd, whenVisibleParams, genre } =
     useFilmFilters(false);
+
 </script>
