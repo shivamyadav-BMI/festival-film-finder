@@ -13,7 +13,7 @@
                 >
                     <Link
                         href="/"
-                        class="text-orange-600 self-center text-xs md:text-sm lg:text-2xl uppercase font-semibold whitespace-nowrap dark:text-white"
+                        class="text-orange-500 self-center text-xs md:text-sm lg:text-2xl uppercase font-semibold whitespace-nowrap dark:text-white"
                     >
                         Festival Film Finder
                     </Link>
