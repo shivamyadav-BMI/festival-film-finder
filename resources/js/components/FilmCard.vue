@@ -1,8 +1,8 @@
 <template>
     <article
-        class="transition-colors duration-300 border-white hover:border-orange-500 border  border-opacity-0  rounded-xl"
+        class="relative transition-colors duration-300 border-white hover:border-orange-500 border  border-opacity-0  rounded-xl"
     >
-        <div class="p-">
+        <div class="">
             <div class="w-full aspect-[3/4] overflow-hidden rounded-xl bg-orange-500 ">
                 <img
                     :src="film.poster"
@@ -11,6 +11,10 @@
                 />
             </div>
         </div>
+        <!-- average rating -->
+         <div class="absolute bottom-3 right-2">
+            <h3 class="bg-white text-black rounded-full w-10 h-10 flex justify-center items-center">{{ film.average_rating.toFixed(1) }}</h3>
+         </div>
     </article>
 </template>
 

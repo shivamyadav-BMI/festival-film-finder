@@ -14,8 +14,13 @@ class VerifiedFilm extends Model
         return $this->belongsToMany(Genre::class, 'film_genre', 'verified_film_id', 'genre_id');
     }
 
-    // query scopes
+    // calculate the average rating and make it to the out of 10
+    public function avg_rating($imdb, $tomatoes, $metacritic)
+    {
+        return ($imdb + ($tomatoes / 10) + ($metacritic / 10)) / 3; // to convert out of 10 rating
+    }
 
+    // query scopes
     public function scopeFilterBySort(Builder $query, $sortBy): Builder
     {
         return $query->when(

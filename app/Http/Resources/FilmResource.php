@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class FilmResource extends JsonResource
 {
-      public static $wrap = null;
+    public static $wrap = null;
     /**
      * Transform the resource into an array.
      *
@@ -28,6 +28,11 @@ class FilmResource extends JsonResource
             'plot_summary' => $this->plot_summary,
             'rotten_tomatoes_rating' => $this->rotten_tomatoes_rating,
             'metacritic_rating' => $this->metacritic_rating,
+            'average_rating' => $this->avg_rating(
+                $this->imdb_rating ?? 0,
+                $this->rotten_tomatoes_rating ?? 0,
+                $this->metacritic_rating ?? 0
+            ),
         ];
     }
 }

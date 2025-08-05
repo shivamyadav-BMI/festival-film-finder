@@ -1,15 +1,15 @@
 <template>
     <AppLayout>
         <div class="max-w-6xl mx-auto">
-            <div class="my-10 px-4 flex justify-between itens-center gap-6">
+            <div class="my-10 md:px-4 flex justify-between itens-center gap-6">
                 <h3 class="md:text-2xl">Genres {{ genre }} Movies</h3>
                 <FilterDropDown />
             </div>
 
-            <!-- testing cards -->
-            <div class="px-4">
+            <!-- genres films cards -->
+            <div class="md:px-4">
                 <div
-                    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
+                    class="grid grid-cols-2  md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5"
                 >
                     <Link
                         v-for="film in films"
