@@ -52,9 +52,9 @@
                             </h3>
                         </div>
 
-                        <div v-if="film.plot_summary">
-                            <p class="line-clamp-5">
-                                {{ film.plot_summary }}
+                        <div v-if="film.description">
+                            <p class="">
+                                {{ film.description }}
                             </p>
                         </div>
 

@@ -14,6 +14,18 @@ class VerifiedFilm extends Model
         return $this->belongsToMany(Genre::class, 'film_genre', 'verified_film_id', 'genre_id');
     }
 
+    public function awards()
+    {
+        return $this->hasMany(FilmAward::class);
+    }
+
+    public function festivals()
+    {
+        return $this->belongsToMany(Festival::class, 'film_awards')
+            ->withPivot(['award_year', 'award_name', 'award_category', 'result'])
+            ->withTimestamps();
+    }
+
     // calculate the average rating and make it to the out of 10
     public function avg_rating($imdb, $tomatoes, $metacritic)
     {

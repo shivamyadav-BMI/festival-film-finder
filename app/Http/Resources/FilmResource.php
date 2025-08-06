@@ -20,6 +20,7 @@ class FilmResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'director' => $this->director,
+            'description' => $this->description,
             'year' => $this->year,
             'genres' => GenreResource::collection($this->genres),
             'festival_awards' => $this->festival_awards,
