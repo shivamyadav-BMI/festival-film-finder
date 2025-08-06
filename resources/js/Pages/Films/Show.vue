@@ -1,17 +1,19 @@
 <template>
     <AppLayout>
         <div class="flex flex-col lg:flex-row gap-10 my-10 mx-auto max-w-6xl">
-            <div class="px-4 lg:w-1/3 lg:sticky lg:top-[80px] lg:self-start">
-                <div class="w-[85vw] md:w-full  md:h-[60vh]  lg:h-[70vh] overflow-hidden aspect-square">
+            <div class="md:px-4 lg:w-1/3 lg:sticky lg:top-[80px] lg:self-start">
+                <div
+                    class="w-[85vw] md:w-full md:h-auto lg:h-[70vh] overflow-hidden"
+                >
                     <img
                         :src="film.poster"
-                        class="w-full h-full object- rounded-lg"
+                        class="w-full h-auto md:h-full object-contain md:object-cover rounded-lg"
                         alt=""
                     />
                 </div>
             </div>
 
-            <div class="flex-1 flex flex-col px-3">
+            <div class="flex-1 flex flex-col lg:px-3">
                 <div class="flex flex-col gap-5">
                     <div class="flex flex-col borde p-5 rounded-xl shadow">
                         <div
@@ -19,7 +21,7 @@
                         >
                             <div>
                                 <div
-                                    class="flex cursor-pointer border-orange-500 text-orange-500 hover:text-white hover:bg-orange-500  items-center text-semibold rounded-full px-2 py-1 border"
+                                    class="flex cursor-pointer border-orange-500 text-orange-500 hover:text-white hover:bg-orange-500 items-center text-semibold rounded-full px-2 py-1 border"
                                 >
                                     <span class="">
                                         <svg
