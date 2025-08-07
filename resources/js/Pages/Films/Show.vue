@@ -4,10 +4,10 @@
             <div
                 class="md:px-4 lg:px-0 lg:w-3/6 lg:sticky lg:top-[10vh] lg:self-start"
             >
-                <div class="md:w-full md:h-auto lg:h-[90vh] overflow-hidden rounded-lg">
+                <div class="md:w-full md:h-auto lg:h-[88vh] overflow-hidden rounded-lg">
                     <img
                         :src="film.poster"
-                        class="w-full h-auto md:h-full object-contain  rounded-lg"
+                        class="w-full h-auto md:h-full object-contain rounded-lg"
                         alt=""
                     />
                 </div>
@@ -111,6 +111,10 @@
                             </div>
                         </div>
 
+                        <div class="my-3" v-if="film.plot_summary">
+                            <h3 class="my-3 text-lg">Plot Summary</h3>
+                            <p>{{ film.plot_summary }}</p>
+                        </div>
                         <!-- <div v-if="film.festival_awards">
                             <h3 class="my-3 text-lg">Festival Awards</h3>
                             <div class="">
@@ -138,12 +142,12 @@
                                 <div
                                     v-for="group in festivalAwards"
                                     :key="group.group"
-                                    class="bg-white shadow rounded-lg p-6"
+                                    class="bg- shadow border rounded-lg p-6"
                                 >
                                     <h3
-                                        class="text-xl font-semibold text-indigo-700 border-b border-gray-200 pb-2 mb-4"
+                                        class="text-xl font-semibold text-orange-600 border-b border-gray-200 pb-2 mb-4"
                                     >
-                                        {{ group.group }}
+                                        {{ group.group }} Film Festival
                                     </h3>
 
                                     <ul class="space-y-4">
@@ -156,7 +160,7 @@
                                         >
                                             <div>
                                                 <p
-                                                    class="text-gray-900 font-medium"
+                                                    class=" flex space-x-3"
                                                 >
                                                     <span
                                                         v-if="
@@ -172,14 +176,16 @@
                                                         "
                                                         >🎖️</span
                                                     >
-                                                    {{ award.result }} —
+                                                   <h3>
+                                                     {{ award.result }} —
                                                     {{ award.award }}
+                                                   </h3>
                                                 </p>
                                                 <p
-                                                    class="text-gray-600 text-sm italic"
+                                                    class="pl-8 text-sm"
                                                     v-if="award.category"
                                                 >
-                                                    {{ award.category }}
+                                                    <span class="text-orange-600">Category : </span> {{ award.category }}
                                                 </p>
                                                 <p
                                                     class="text-gray-500 text-xs mt-1"
@@ -193,12 +199,6 @@
                                 </div>
                             </div>
 
-                            <p
-                                v-if="festivalAwards.length == 0"
-                                class="text-gray-500 italic"
-                            >
-                                No festival awards found for this film.
-                            </p>
                         </section>
                     </div>
                 </div>

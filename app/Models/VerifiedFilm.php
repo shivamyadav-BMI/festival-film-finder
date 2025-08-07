@@ -29,7 +29,27 @@ class VerifiedFilm extends Model
     // calculate the average rating and make it to the out of 10
     public function avg_rating($imdb, $tomatoes, $metacritic)
     {
-        return ($imdb + ($tomatoes / 10) + ($metacritic / 10)) / 3; // to convert out of 10 rating
+        $scores = [];
+
+        if ($imdb && !is_null($imdb)) {
+            $scores[] = $imdb;
+        }
+
+        if ($tomatoes && !is_null($tomatoes)) {
+            $scores[] = $tomatoes / 10;
+        }
+
+        if ($metacritic && !is_null($metacritic)) {
+            $scores[] = $metacritic / 10;
+        }
+
+        if (empty($scores)) {
+            return null;
+        }
+
+        return array_sum($scores) / count($scores);
+        // to return the avg rating properly when rotten or metacritic or imdb does not have rating in the database
+        // return ($imdb + ($tomatoes / 10) + ($metacritic / 10)) / 3; // to convert out of 10 rating
     }
 
     // query scopes

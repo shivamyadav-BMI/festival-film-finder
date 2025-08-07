@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&display=swap" rel="stylesheet">
     @vite(['resources/js/app.js'])
     @inertiaHead
+
 </head>
 
 <body class="bg-black text-white font-fjalla ">

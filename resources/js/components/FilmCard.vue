@@ -1,9 +1,11 @@
 <template>
     <article
-        class="relative transition-colors duration-300 border-white hover:border-orange-500 border  border-opacity-0  rounded-xl"
+        class="relative transition-colors duration-300 border-white hover:border-orange-500 border border-opacity-0 rounded-xl"
     >
         <div class="">
-            <div class="w-full aspect-[3/4] overflow-hidden rounded-xl bg-orange-500 ">
+            <div
+                class="w-full aspect-[3/4] overflow-hidden rounded-xl bg-orange-500"
+            >
                 <img
                     :src="film.poster"
                     :alt="film.title"
@@ -12,9 +14,19 @@
             </div>
         </div>
         <!-- average rating -->
-         <div class="absolute bottom-3 right-2">
-            <h3 class="bg-white text-black rounded-full w-10 h-10 flex justify-center items-center">{{ film.average_rating.toFixed(1) }}</h3>
-         </div>
+        <div class="absolute bottom-3 right-2">
+            <h3
+                class="p-1 text-sm lg:p-0 rounded-full w-8 h-8 md:w-10 md:h-10 flex justify-center items-center"
+                :class="{
+                    'bg-red-500 text-white': film.average_rating <= 5,
+                    'bg-teal-600 text-white':
+                        film.average_rating > 5 && film.average_rating <= 7.5,
+                    'bg-purple-500 text-white': film.average_rating > 7.5,
+                }"
+            >
+                {{ film.average_rating.toFixed(1) }}
+            </h3>
+        </div>
     </article>
 </template>
 

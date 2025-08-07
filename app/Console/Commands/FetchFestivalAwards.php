@@ -18,14 +18,15 @@ class FetchFestivalAwards extends Command
 
     public function handle()
     {
-        $films = VerifiedFilm::take(20)->get();
+        $films = VerifiedFilm::skip(400)->take(50)->get();
 
         if ($films->isEmpty()) {
             $this->warn("⚠️ No films found.");
             return;
         }
 
-        $top3Festivals = ['Cannes', 'Venice', 'Berlin'];
+        // Top 4 Festivals: Cannes, Venice, Berlin, Oscars
+        $top4Festivals = ['Cannes', 'Venice', 'Berlin', 'Academy Awards'];
         $bTierFestivals = ['Rotterdam', 'Toronto', 'Locarno', 'Sundance', 'Busan', 'San Sebastian', 'San Sebastián', 'Karlovy Vary'];
 
         $excludedSections = [
@@ -91,15 +92,15 @@ class FetchFestivalAwards extends Command
 
                 $crawler = new Crawler($awardsPage->body());
 
-                $top3Awards = [];
-                $bTierAwards = [];
+                $topFestivals = [];
+                $bTierFestivalsList = [];
                 $seenAwards = [];
 
                 $crawler->filter('#jump-to option')->each(function ($option) use (
-                    &$top3Awards,
-                    &$bTierAwards,
+                    &$topFestivals,
+                    &$bTierFestivalsList,
                     $crawler,
-                    $top3Festivals,
+                    $top4Festivals,
                     $bTierFestivals,
                     $excludedSections,
                     &$seenAwards,
@@ -114,8 +115,8 @@ class FetchFestivalAwards extends Command
                     }
 
                     $matchedTier = null;
-                    if ($this->matchesFestivalName($festivalName, $top3Festivals)) {
-                        $matchedTier = 'top3';
+                    if ($this->matchesFestivalName($festivalName, $top4Festivals)) {
+                        $matchedTier = 'top';
                     } elseif ($this->matchesFestivalName($festivalName, $bTierFestivals)) {
                         $matchedTier = 'btier';
                     } else {
@@ -143,6 +144,15 @@ class FetchFestivalAwards extends Command
                         $awardName = trim(str_replace(['Winner', 'Nominee'], '', $eventText));
                         $awardText = trim("{$eventText} - {$category}");
 
+                        // ✅ Only allow Oscars under Academy Awards
+                        if (
+                            stripos($festivalName, 'Academy Awards') !== false &&
+                            stripos($awardName, 'Oscar') === false &&
+                            stripos($category, 'Oscar') === false
+                        ) {
+                            return; // ❌ Skip non-Oscar entries
+                        }
+
                         $dedupKey = strtolower("{$festivalName}|{$awardText}");
                         if (!isset($seenAwards[$dedupKey])) {
                             $seenAwards[$dedupKey] = true;
@@ -160,10 +170,10 @@ class FetchFestivalAwards extends Command
                     });
 
                     if (!empty($uniqueAwards)) {
-                        if ($matchedTier === 'top3') {
-                            $top3Awards[$festivalName] = $uniqueAwards;
+                        if ($matchedTier === 'top') {
+                            $topFestivals[$festivalName] = $uniqueAwards;
                         } elseif ($matchedTier === 'btier') {
-                            $bTierAwards[$festivalName] = $uniqueAwards;
+                            $bTierFestivalsList[$festivalName] = $uniqueAwards;
                         }
                     }
                 });
@@ -172,21 +182,21 @@ class FetchFestivalAwards extends Command
                 $this->line("");
                 $this->info("🎬 Film: {$title} ({$director})");
 
-                if (!empty($top3Awards)) {
-                    $this->info("🏆 Top 3 Festivals:");
-                    foreach ($top3Awards as $festival => $awards) {
+                if (!empty($topFestivals)) {
+                    $this->info("🏆 Top Festivals:");
+                    foreach ($topFestivals as $festival => $awards) {
                         $this->line("   {$festival} (" . count($awards) . "):");
                         foreach ($awards as $award) {
                             $this->line("      • {$award['text']}");
                         }
                     }
                 } else {
-                    $this->warn("🏆 No Top 3 festival awards found.");
+                    $this->warn("🏆 No Top festival awards found.");
                 }
 
-                if (!empty($bTierAwards)) {
+                if (!empty($bTierFestivalsList)) {
                     $this->info("🏆 B-Tier Festivals:");
-                    foreach ($bTierAwards as $festival => $awards) {
+                    foreach ($bTierFestivalsList as $festival => $awards) {
                         $this->line("   {$festival} (" . count($awards) . "):");
                         foreach ($awards as $award) {
                             $this->line("      • {$award['text']}");
@@ -227,8 +237,8 @@ class FetchFestivalAwards extends Command
 
         $award = FestivalAward::firstOrCreate([
             'festival_id' => $festival->id,
-            'name' => $awardName,     // Actual award title
-            'category' => $category   // Description / additional info
+            'name' => $awardName,
+            'category' => $category
         ]);
 
         FestivalAwardResult::updateOrCreate([

@@ -31,8 +31,7 @@
                         >
                             <!-- Search icon (only visible when input is not focused and empty) -->
                             <div
-                                v-if="!searchFocused && !search"
-                                class="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500 pointer-events-none"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-orange-500 pointer-events-none"
                             >
                                 <Search />
                             </div>
@@ -40,10 +39,9 @@
                             <input
                                 v-model="search"
                                 ref="searchInputRef"
+                                placeholder="Search ..."
                                 type="search"
-                                @focus="searchFocused = true"
-                                 @blur="() => { if (!search) searchFocused = false }"
-                                class="text-black outline-none ring-0 focus:border-white focus:border font-medium rounded-lg text-sm px-2 py-2 w-12 cursor-pointer focus:w-64 transition-all duration-300 ease-out origin-left"
+                                class="text-black outline-none ring-0 focus:border-white focus:border font-medium rounded-lg text-sm pr-10 pl-2 py-2 w-52  focus:w-64 transition-all duration-300 ease-out origin-left"
                             />
                         </div>
 
@@ -407,3 +405,14 @@ onMounted(() => {
 });
 </script>
 
+<style >
+#nprogress .bar {
+  background: #ff4500 !important;
+  height: 3px !important;
+}
+
+#nprogress .spinner-icon {
+  border-top-color: #ff4500 !important;
+  border-left-color: #ff4500 !important;
+}
+</style>
