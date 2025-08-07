@@ -14,17 +14,17 @@ class VerifiedFilm extends Model
         return $this->belongsToMany(Genre::class, 'film_genre', 'verified_film_id', 'genre_id');
     }
 
-    public function awards()
+    public function awardResults()
     {
-        return $this->hasMany(FilmAward::class);
+        return $this->hasMany(FestivalAwardResult::class);
     }
 
     public function festivals()
     {
-        return $this->belongsToMany(Festival::class, 'film_awards')
-            ->withPivot(['award_year', 'award_name', 'award_category', 'result'])
-            ->withTimestamps();
+        return $this->belongsToMany(Festival::class, 'festival_award_results', 'verified_film_id', 'festival_award_id')
+            ->withPivot(['festival_award_id', 'festival_edition_id', 'result']);
     }
+
 
     // calculate the average rating and make it to the out of 10
     public function avg_rating($imdb, $tomatoes, $metacritic)

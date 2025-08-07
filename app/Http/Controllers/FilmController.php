@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\FilmResource;
+use App\Models\Festival;
 use App\Models\Film;
 use App\Models\Genre;
 use App\Models\VerifiedFilm;
@@ -19,15 +20,12 @@ class FilmController extends Controller
      */
     public function index()
     {
-        // $genres = Genre::select('name', 'slug')->get();
-
         // for searching with title or director
         $search = request()->input('search');
         $sortBy = request()->input('sort_by');
 
         // if sort by value does not match with asc or desc abort
-        if($sortBy && !in_array($sortBy, ['asc', 'desc']))
-        {
+        if ($sortBy && !in_array($sortBy, ['asc', 'desc'])) {
             return Inertia::render('Errors/NotFound')->toResponse(request())->setStatusCode(404);
         }
         // films data
@@ -88,10 +86,37 @@ class FilmController extends Controller
      */
     public function show(VerifiedFilm $film)
     {
+        $film->load([
+            'awardResults.award.festival',
+            'awardResults.edition'
+        ]);
+        // Group the awards by festival name + edition year
+        $groupedAwards = $film->awardResults->groupBy(function ($result) {
+            $festivalName = $result->award?->festival?->name ?? 'Unknown Festival';
+            // $year = $result->edition?->year ?? 'Unknown Year';
+            return "{$festivalName}";
+        });
+
+        // Prepare response data
+        $festivalAwards = $groupedAwards->map(function ($results, $group) {
+            return [
+                'group' => $group,
+                'awards' => $results->map(function ($result) {
+                    return [
+                        'award' => $result->award->name ?? null,
+                        'category' => $result->award->category ?? null,
+                        'result' => $result->result,
+                    ];
+                })->values(),
+            ];
+        })->values();
+
         $genres = Genre::select('name', 'slug')->get();
+
         return Inertia::render('Films/Show', [
             'film' => new FilmResource($film),
             'genres' => $genres,
+            'festivalAwards' => $festivalAwards,
         ]);
     }
 

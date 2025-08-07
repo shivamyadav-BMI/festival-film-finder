@@ -3,6 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\VerifiedFilm;
+use App\Models\Festival;
+use App\Models\FestivalEdition;
+use App\Models\FestivalAward;
+use App\Models\FestivalAwardResult;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\DomCrawler\Crawler;
@@ -14,32 +18,37 @@ class FetchFestivalAwards extends Command
 
     public function handle()
     {
-        // Manual array for single film
-        // $films = collect([
-        //     (object)[
-        //         'title' => 'Village Rockstars 2',
-        //         'year' => 2024,
-        //         'director' => null
-        //     ]
-        // ]);
-        $films = VerifiedFilm::where('id', 152)->get();
+        $films = VerifiedFilm::take(20)->get();
+
         if ($films->isEmpty()) {
             $this->warn("⚠️ No films found.");
             return;
         }
 
-        $top3Festivals = ['Venice', 'Cannes', 'Berlin'];
+        $top3Festivals = ['Cannes', 'Venice', 'Berlin'];
         $bTierFestivals = ['Rotterdam', 'Toronto', 'Locarno', 'Sundance', 'Busan', 'San Sebastian', 'San Sebastián', 'Karlovy Vary'];
+
+        $excludedSections = [
+            'ICS Cannes Awards',
+            'Toronto Film Critics',
+            'International Cinephile Society',
+            'New York Film Critics',
+            'Los Angeles Film Critics',
+            'Boston Online Film Critics',
+            'Online Film Critics Society',
+            'Chicago Film Critics',
+            'National Society of Film Critics',
+            'Critics Choice Awards'
+        ];
 
         foreach ($films as $film) {
             $title = $film->title;
-            $year  = (int) $film->year;
+            $year = (int) $film->year;
             $director = $film->director ?? 'Unknown Director';
 
             $this->info("🔍 Searching IMDb for: {$title} ({$year})");
 
             try {
-                // IMDb Search
                 $slug = \Illuminate\Support\Str::slug($title);
                 $firstLetter = strtolower($slug[0] ?? 'a');
                 $suggestUrl = "https://v2.sg.media-imdb.com/suggestion/{$firstLetter}/{$slug}.json";
@@ -57,7 +66,7 @@ class FetchFestivalAwards extends Command
                     fn($i) =>
                         isset($i['l'], $i['y']) &&
                         mb_strtolower($i['l']) === mb_strtolower($title) &&
-                        (int)$i['y'] === $year
+                        (int) $i['y'] === $year
                 );
 
                 if (!$match || empty($match['id'])) {
@@ -70,7 +79,6 @@ class FetchFestivalAwards extends Command
 
                 sleep(2);
 
-                // Fetch awards page
                 $awardsPage = Http::withHeaders([
                     'User-Agent' => 'Mozilla/5.0',
                     'Accept-Language' => 'en-US,en;q=0.9',
@@ -83,52 +91,80 @@ class FetchFestivalAwards extends Command
 
                 $crawler = new Crawler($awardsPage->body());
 
-                // Grouped arrays
                 $top3Awards = [];
                 $bTierAwards = [];
-                $releaseYearAwards = [];
+                $seenAwards = [];
 
-                // Loop through dropdown options (festivals)
-                $crawler->filter('#jump-to option')->each(function ($option) use (&$top3Awards, &$bTierAwards, &$releaseYearAwards, $top3Festivals, $bTierFestivals, $crawler, $year) {
+                $crawler->filter('#jump-to option')->each(function ($option) use (
+                    &$top3Awards,
+                    &$bTierAwards,
+                    $crawler,
+                    $top3Festivals,
+                    $bTierFestivals,
+                    $excludedSections,
+                    &$seenAwards,
+                    $film,
+                    $year
+                ) {
                     $festivalName = trim($option->text());
-                    $festivalAnchor = $option->attr('value');
+                    $anchor = $option->attr('value');
 
-                    $section = $crawler->filter($festivalAnchor);
-                    if ($section->count() === 0) {
+                    foreach ($excludedSections as $excluded) {
+                        if (stripos($festivalName, $excluded) !== false) return;
+                    }
+
+                    $matchedTier = null;
+                    if ($this->matchesFestivalName($festivalName, $top3Festivals)) {
+                        $matchedTier = 'top3';
+                    } elseif ($this->matchesFestivalName($festivalName, $bTierFestivals)) {
+                        $matchedTier = 'btier';
+                    } else {
                         return;
                     }
 
-                    $parentSection = $section->ancestors()->filter('.ipc-metadata-list');
-                    if ($parentSection->count() === 0) {
-                        $parentSection = $section->ancestors()->first();
-                    }
+                    $sectionId = ltrim($anchor, '#');
+                    $section = $crawler->filter("#{$sectionId}");
+                    if ($section->count() === 0) return;
 
-                    $awardsForFestival = [];
-                    $parentSection->filter('.ipc-metadata-list-summary-item')->each(function ($node) use (&$awardsForFestival, $year) {
+                    $parentSection = $section->ancestors()->filter('.ipc-metadata-list')->first()
+                        ?? $section->ancestors()->first();
+
+                    $uniqueAwards = [];
+                    $parentSection->filter('.ipc-metadata-list-summary-item')->each(function ($node) use (
+                        &$uniqueAwards,
+                        $festivalName,
+                        &$seenAwards,
+                        $film,
+                        $year
+                    ) {
                         $eventText = $node->filter('.ipc-metadata-list-summary-item__t')->text('');
-                        $category  = $node->filter('.awardCategoryName')->text('');
+                        $category = $node->filter('.awardCategoryName')->text('');
+                        $resultType = str_contains(strtolower($eventText), 'winner') ? 'Winner' : 'Nominee';
+                        $awardName = trim(str_replace(['Winner', 'Nominee'], '', $eventText));
                         $awardText = trim("{$eventText} - {$category}");
 
-                        preg_match('/\b(19|20)\d{2}\b/', $eventText, $yearMatches);
-                        $awardYear = isset($yearMatches[0]) ? (int)$yearMatches[0] : null;
+                        $dedupKey = strtolower("{$festivalName}|{$awardText}");
+                        if (!isset($seenAwards[$dedupKey])) {
+                            $seenAwards[$dedupKey] = true;
 
-                        $awardsForFestival[] = [
-                            'text' => $awardText,
-                            'year' => $awardYear
-                        ];
+                            $uniqueAwards[] = [
+                                'text' => $awardText,
+                                'result' => $resultType,
+                                'category' => $category,
+                                'awardName' => $awardName,
+                                'year' => $year
+                            ];
+
+                            $this->storeAward($festivalName, $year, $awardName, $category, $resultType, $awardText, $film->id);
+                        }
                     });
 
-                    // Assign to correct group
-                    if ($this->matchesFestivalName($festivalName, $top3Festivals)) {
-                        $top3Awards[$festivalName] = $awardsForFestival;
-                    } elseif ($this->matchesFestivalName($festivalName, $bTierFestivals)) {
-                        $bTierAwards[$festivalName] = $awardsForFestival;
-                    }
-
-                    // Add release year awards grouped by festival
-                    $yearSpecificAwards = array_filter($awardsForFestival, fn($a) => $a['year'] === $year);
-                    if (!empty($yearSpecificAwards)) {
-                        $releaseYearAwards[$festivalName] = $yearSpecificAwards;
+                    if (!empty($uniqueAwards)) {
+                        if ($matchedTier === 'top3') {
+                            $top3Awards[$festivalName] = $uniqueAwards;
+                        } elseif ($matchedTier === 'btier') {
+                            $bTierAwards[$festivalName] = $uniqueAwards;
+                        }
                     }
                 });
 
@@ -139,7 +175,7 @@ class FetchFestivalAwards extends Command
                 if (!empty($top3Awards)) {
                     $this->info("🏆 Top 3 Festivals:");
                     foreach ($top3Awards as $festival => $awards) {
-                        $this->line("   {$festival}:");
+                        $this->line("   {$festival} (" . count($awards) . "):");
                         foreach ($awards as $award) {
                             $this->line("      • {$award['text']}");
                         }
@@ -151,25 +187,13 @@ class FetchFestivalAwards extends Command
                 if (!empty($bTierAwards)) {
                     $this->info("🏆 B-Tier Festivals:");
                     foreach ($bTierAwards as $festival => $awards) {
-                        $this->line("   {$festival}:");
+                        $this->line("   {$festival} (" . count($awards) . "):");
                         foreach ($awards as $award) {
                             $this->line("      • {$award['text']}");
                         }
                     }
                 } else {
                     $this->warn("🏆 No B-Tier festival awards found.");
-                }
-
-                if (!empty($releaseYearAwards)) {
-                    $this->info("📅 Awards in {$year}:");
-                    foreach ($releaseYearAwards as $festival => $awards) {
-                        $this->line("   {$festival}:");
-                        foreach ($awards as $award) {
-                            $this->line("      • {$award['text']}");
-                        }
-                    }
-                } else {
-                    $this->warn("📅 No awards found for release year {$year}.");
                 }
 
                 $this->line("");
@@ -180,6 +204,41 @@ class FetchFestivalAwards extends Command
         }
 
         $this->info("✅ Done fetching awards.");
+    }
+
+    private function storeAward($rawFestivalName, $year, $awardName, $category, $result, $notes, $filmId)
+    {
+        $cleanFestivalName = preg_replace('/\(\d+\)$/', '', $rawFestivalName);
+        $cleanFestivalName = trim($cleanFestivalName);
+
+        $festival = Festival::get()->first(function ($fest) use ($cleanFestivalName) {
+            return stripos($cleanFestivalName, $fest->name) !== false;
+        });
+
+        if (!$festival) {
+            $this->warn("⚠️ Festival not found in DB: {$rawFestivalName}");
+            return;
+        }
+
+        $edition = FestivalEdition::firstOrCreate([
+            'festival_id' => $festival->id,
+            'year' => $year
+        ]);
+
+        $award = FestivalAward::firstOrCreate([
+            'festival_id' => $festival->id,
+            'name' => $awardName,     // Actual award title
+            'category' => $category   // Description / additional info
+        ]);
+
+        FestivalAwardResult::updateOrCreate([
+            'verified_film_id' => $filmId,
+            'festival_award_id' => $award->id,
+            'festival_edition_id' => $edition->id,
+        ], [
+            'result' => $result,
+            'notes' => $notes
+        ]);
     }
 
     private function matchesFestivalName($name, $list)

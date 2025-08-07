@@ -15,13 +15,14 @@ class FilmAward extends Model
         'result'
     ];
 
-    public function film()
-    {
-        return $this->belongsTo(Film::class);
-    }
+    // public function film()
+    // {
+    //     return $this->belongsTo(VerifiedFilm::class);
+    // }
 
-    public function festival()
-    {
-        return $this->belongsTo(Festival::class);
-    }
+    // public function festival()
+    // {
+    //     return $this->belongsTo(Festival::class);
+    // }
+
 }

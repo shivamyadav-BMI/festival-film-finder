@@ -19,5 +19,5 @@ class Film extends Model
         'plot_summary',
     ];
 
-   
+
 }

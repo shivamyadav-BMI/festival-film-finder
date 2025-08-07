@@ -1,13 +1,13 @@
 <template>
     <AppLayout>
         <div class="flex flex-col lg:flex-row gap-10 my-10 mx-auto max-w-6xl">
-            <div class="md:px-4 lg:w-1/3 lg:sticky lg:top-[80px] lg:self-start">
-                <div
-                    class="w-[85vw] md:w-full md:h-auto lg:h-[70vh] overflow-hidden"
-                >
+            <div
+                class="md:px-4 lg:px-0 lg:w-3/6 lg:sticky lg:top-[10vh] lg:self-start"
+            >
+                <div class="md:w-full md:h-auto lg:h-[90vh] overflow-hidden rounded-lg">
                     <img
                         :src="film.poster"
-                        class="w-full h-auto md:h-full object-contain md:object-cover rounded-lg"
+                        class="w-full h-auto md:h-full object-contain  rounded-lg"
                         alt=""
                     />
                 </div>
@@ -111,7 +111,7 @@
                             </div>
                         </div>
 
-                        <div v-if="film.festival_awards">
+                        <!-- <div v-if="film.festival_awards">
                             <h3 class="my-3 text-lg">Festival Awards</h3>
                             <div class="">
                                 <div
@@ -123,7 +123,83 @@
                                     {{ award }}
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
+
+                        <!-- Festival Awards Section -->
+                        <section
+                            v-if="festivalAwards.length"
+                            class="mt-10 space-y-8"
+                        >
+                            <h2 class="text-2xl font-bold">
+                                🎖 Festival Awards
+                            </h2>
+
+                            <div class="space-y-6">
+                                <div
+                                    v-for="group in festivalAwards"
+                                    :key="group.group"
+                                    class="bg-white shadow rounded-lg p-6"
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-indigo-700 border-b border-gray-200 pb-2 mb-4"
+                                    >
+                                        {{ group.group }}
+                                    </h3>
+
+                                    <ul class="space-y-4">
+                                        <li
+                                            v-for="(
+                                                award, index
+                                            ) in group.awards"
+                                            :key="index"
+                                            class="flex items-start justify-between"
+                                        >
+                                            <div>
+                                                <p
+                                                    class="text-gray-900 font-medium"
+                                                >
+                                                    <span
+                                                        v-if="
+                                                            award.result ===
+                                                            'Winner'
+                                                        "
+                                                        >🏆</span
+                                                    >
+                                                    <span
+                                                        v-else-if="
+                                                            award.result ===
+                                                            'Nominee'
+                                                        "
+                                                        >🎖️</span
+                                                    >
+                                                    {{ award.result }} —
+                                                    {{ award.award }}
+                                                </p>
+                                                <p
+                                                    class="text-gray-600 text-sm italic"
+                                                    v-if="award.category"
+                                                >
+                                                    {{ award.category }}
+                                                </p>
+                                                <p
+                                                    class="text-gray-500 text-xs mt-1"
+                                                    v-if="award.notes"
+                                                >
+                                                    Notes: {{ award.notes }}
+                                                </p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <p
+                                v-if="festivalAwards.length == 0"
+                                class="text-gray-500 italic"
+                            >
+                                No festival awards found for this film.
+                            </p>
+                        </section>
                     </div>
                 </div>
             </div>
@@ -136,6 +212,7 @@ import { Link } from "@inertiajs/vue3";
 import AppLayout from "../../layouts/AppLayout.vue";
 defineProps({
     film: Object,
+    festivalAwards: Array,
 });
 
 function back() {
