@@ -1,5 +1,5 @@
 <template>
-    <div ref="dropdownRef" class="relative inline-block">
+   <div ref="dropdownRef" class="relative inline-block">
         <button
             @click.stop="toggleFilterDropdown"
             id="dropdownDefaultButton"
@@ -24,33 +24,60 @@
             </svg>
         </button>
 
-        <div
-            v-if="isFilterOpen"
-            id="dropdown"
-            class="absolute mt-2 z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-28 border border-gray-100"
-        >
-            <ul class="py-2 text-sm text-gray-700 w-full dark:text-gray-200">
-                <li>
-                    <button
-                        @click="sortBy('asc')"
-                        class="text-start block px-4 py-2 hover:bg-gray-100 w-full cursor-pointer hover:bg-orange-500 hover:text-white"
-                    >
-                        Low to high
-                    </button>
-                </li>
-                <li>
-                    <button
-                        @click="sortBy('desc')"
-                        class="text-start block px-4 py-2 hover:bg-gray-100 w-full cursor-pointer hover:bg-orange-500 hover:text-white"
-                    >
-                        High to low
-                    </button>
-                </li>
-            </ul>
+        <div>
+            <div
+                v-if="isFilterOpen"
+                id="dropdown"
+                class="absolute mt-2 z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-64 border border-gray-100 left-auto right-0"
+            >
+                <ul class="py-2 text-sm text-gray-700 grid grid-cols-2">
+                    <div class="p-3">
+                        <h3 class="mb-2 font-semibold text-gray-900">Festivals</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" class="accent-orange-600" @change="filterByFestival('Oscar')" />
+                                <h3>Oscar</h3>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" class="accent-orange-600" @change="filterByFestival('Cannes')" />
+                                <h3>Cannes</h3>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" class="accent-orange-600" @change="filterByFestival('Venice')" />
+                                <h3>Venice</h3>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" class="accent-orange-600" @change="filterByFestival('Berlin')" />
+                                <h3>Berlin</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3">
+                        <h3 class="mb-2 font-semibold text-gray-900">Sort by Rating</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="sort" class="accent-orange-600" @change="sortBy('rating_asc')" />
+                                <h3>Low to High</h3>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="sort" class="accent-orange-600" @change="sortBy('rating_desc')" />
+                                <h3>High to Low</h3>
+                            </div>
+                        </div>
+
+                        <h3 class="mt-4 mb-2 font-semibold text-gray-900">Filter by Year</h3>
+                        <div class="space-y-2 max-h-40 overflow-auto">
+                            <div v-for="y in [2025,2024,2023,2022,2021,2020]" :key="y" class="flex items-center gap-3">
+                                <input type="radio" name="year" class="accent-orange-600" @change="filterByYear(y)" />
+                                <h3>{{ y }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </ul>
+            </div>
         </div>
     </div>
-
-
 </template>
 
 <script setup>

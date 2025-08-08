@@ -7,7 +7,7 @@
                 <div class="md:w-full md:h-auto lg:h-[88vh] overflow-hidden rounded-lg">
                     <img
                         :src="film.poster"
-                        class="w-full h-auto md:h-full object-contain rounded-lg"
+                        class="w-full h-auto md:h-full object-stretch rounded-lg"
                         alt=""
                     />
                 </div>
@@ -62,6 +62,16 @@
                             <h3>Director</h3>
                             <p>{{ film.director }}</p>
                         </div>
+                      <div class="my-3" v-if="film.trailer">
+    <h3>Trailer</h3>
+    <button
+        @click="showTrailer = true"
+        class="text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded mt-2"
+    >
+        ▶️ Watch Trailer
+    </button>
+</div>
+
                         <div class="my-3" v-if="film.year">
                             <h3>Year</h3>
                             <p>{{ film.year }}</p>
@@ -204,18 +214,63 @@
                 </div>
             </div>
         </div>
+
+        <!-- Trailer Modal -->
+        <Teleport to="body">
+            <div
+            v-if="showTrailer"
+            @click.self="showTrailer = false"
+            class="fixed inset-0 bg-black  bg-opacity-80 flex p-4 items-center justify-center z-50"
+        >
+            <div class="bg-orange-500 border border-orange-600 rounded-lg overflow-hidden max-w-4xl h-[60vh] w-full relative">
+                <!-- Close Button -->
+                <button
+                    @click="showTrailer = false"
+                    class="absolute top-2 bg-white rounded-full p-1 right-1 text-red-600 text-2xl font-bold"
+                >
+                   <X />
+                </button>
+
+                <!-- YouTube Video -->
+                <div class=" w-full h-full">
+                    <iframe
+                        v-if="trailerVideoId"
+                        class="w-full h-full"
+                        :src="`https://www.youtube.com/embed/${trailerVideoId}?autoplay=1`"
+                        frameborder="0"
+                        allow="autoplay; encrypted-media"
+                        allowfullscreen
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+        </Teleport>
+
     </AppLayout>
 </template>
 
 <script setup>
+import { computed, ref } from 'vue';
 import { Link } from "@inertiajs/vue3";
 import AppLayout from "../../layouts/AppLayout.vue";
-defineProps({
+import { ClosedCaption, X } from 'lucide-vue-next';
+
+const props  = defineProps({
     film: Object,
     festivalAwards: Array,
+});
+
+const showTrailer = ref(false);
+
+// Extract YouTube video ID from full link (assuming film.trailer is a YouTube URL)
+const trailerVideoId = computed(() => {
+    if (!props.film.trailer) return null;
+    const url = new URL(props.film.trailer);
+    return url.searchParams.get('v') || url.pathname.split('/').pop();
 });
 
 function back() {
     window.history.back();
 }
 </script>
+

@@ -9,13 +9,11 @@ use App\Models\VerifiedFilm;
 class GenerateFilmPlotSummaries extends Command
 {
     protected $signature = 'films:generate-plot-summaries';
-    protected $description = 'Fetch enticing plot summary (150–200 words) for verified films and save it';
+    protected $description = 'Fetch concise, enticing plot summary (100–150 words) for verified films and save it';
 
     public function handle()
     {
-        $films = VerifiedFilm::
-            take(1)
-            ->get();
+        $films = VerifiedFilm::skip(500)->take(100)->get();
 
         if ($films->isEmpty()) {
             $this->info('No films found needing plot summaries.');
@@ -25,21 +23,24 @@ class GenerateFilmPlotSummaries extends Command
         foreach ($films as $film) {
             $this->info("🎬 Processing: {$film->title} ({$film->director})");
 
-            $systemPrompt = <<<PROMPT
+$systemPrompt = <<<PROMPT
 You are Festival Film Finder.
 
 When given a film title and director, identify the correct film and generate:
 
-PLOT SUMMARY (150 to 200 words):
+PLOT SUMMARY (100 to 150 words):
 - Write in a tone that makes the film sound appealing to watch.
 - Summarize the basic story arc and key themes without going into full narrative detail.
 - Focus on mood, tone, emotional hooks, and what's compelling about the story.
 - Mention main characters and the central conflict, but don't spoil the full journey or ending.
-- Do NOT begin with the film's title or the director’s name.
-- Do NOT label the response with "PLOT SUMMARY:" — just return the text.
+- Do NOT mention the film's title.
+- End with 1–2 lines on how **{$film->director}** treats these themes in the film — highlighting their style, tone, or vision in a terse and concise manner.
 
 The goal is to give festival audiences a strong idea of what the film explores while making them want to watch it.
 PROMPT;
+
+
+
 
             $userPrompt = "Title: {$film->title}\nDirector: {$film->director}";
 
@@ -52,7 +53,7 @@ PROMPT;
                             ['role' => 'user', 'content' => $userPrompt],
                         ],
                         'temperature' => 0.8,
-                        'max_tokens' => 900, // ~200 words max
+                        'max_tokens' => 700, // ~150 words
                     ]);
 
                 if ($response->failed()) {
@@ -67,9 +68,8 @@ PROMPT;
                     continue;
                 }
 
-                // Word count check: enforce 150–200 range
                 $wordCount = str_word_count(strip_tags($content));
-                if ($wordCount < 150 || $wordCount > 220) {
+                if ($wordCount < 100 || $wordCount > 160) {
                     $this->warn("⚠️ Plot summary not in range ({$wordCount} words) for {$film->title}");
                     continue;
                 }
@@ -80,7 +80,7 @@ PROMPT;
                 ]);
 
                 $this->info("✅ Saved plot summary for {$film->title} ({$wordCount} words)");
-                sleep(1); // Rate limit buffer
+                sleep(1); // API rate limit buffer
             } catch (\Exception $e) {
                 $this->error("💥 Error processing {$film->title}: " . $e->getMessage());
             }

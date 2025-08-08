@@ -75,4 +75,22 @@ class VerifiedFilm extends Model
             $q->whereHas('genres', fn($q) => $q->where('slug', $genre->slug));
         });
     }
+
+    public function scopeFilterByFestival($query, $festival)
+    {
+        if ($festival) {
+            $query->whereHas('awardResults.award.festival', function ($q) use ($festival) {
+                $q->where('name', 'like', '%' . $festival . '%');
+            });
+        }
+    }
+
+    public function scopeFilterByYear($query, $year)
+    {
+        if ($year) {
+            $query->whereHas('awardResults.edition', function ($q) use ($year) {
+                $q->where('year', $year);
+            });
+        }
+    }
 }

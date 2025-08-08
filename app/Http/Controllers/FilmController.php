@@ -20,6 +20,9 @@ class FilmController extends Controller
      */
     public function index()
     {
+        $festival = request()->input('festival');
+        $year = request()->input('year');
+
         // for searching with title or director
         $search = request()->input('search');
         $sortBy = request()->input('sort_by');
@@ -29,10 +32,14 @@ class FilmController extends Controller
             return Inertia::render('Errors/NotFound')->toResponse(request())->setStatusCode(404);
         }
         // films data
-        $films = VerifiedFilm::filterBySearch($search)
+        $films = VerifiedFilm::with(['awardResults.award.festival', 'awardResults.edition'])
+            ->filterBySearch($search)
             ->filterBySort($sortBy)
+            ->filterByFestival($festival)
+            ->filterByYear($year)
             ->paginate(10)
             ->withQueryString();
+
 
         return Inertia::render('Films/Index', [
             'films' => Inertia::deepMerge(fn() => FilmResource::collection($films->items())), //deepmerge for object/array to be nested deep merge

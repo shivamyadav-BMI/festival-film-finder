@@ -19,6 +19,7 @@ class FilmResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'director' => $this->director,
+            'trailer' => $this->trailer_url,
             'description' => $this->description,
             'year' => $this->year,
             'genres' => GenreResource::collection($this->whenLoaded('genres')),

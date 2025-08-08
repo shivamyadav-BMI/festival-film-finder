@@ -18,7 +18,7 @@ class FetchFestivalAwards extends Command
 
     public function handle()
     {
-        $films = VerifiedFilm::skip(400)->take(50)->get();
+        $films = VerifiedFilm::skip(500)->take(50)->get();
 
         if ($films->isEmpty()) {
             $this->warn("⚠️ No films found.");
