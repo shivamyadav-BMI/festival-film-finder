@@ -3,6 +3,7 @@
 use App\Http\Controllers\FilmController;
 use App\Http\Controllers\GenreController;
 use App\Models\Festival;
+use App\Models\VerifiedFilm;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
@@ -25,14 +26,6 @@ Route::fallback(function () {
     return Inertia::render('Errors/NotFound')->toResponse(request())->setStatusCode(404);
 });
 
-// Route::get('/store/festival', function(){
-// $top3Festivals = ['Venice', 'Cannes', 'Berlin'];
-//         $bTierFestivals = [
-//             'Rotterdam', 'Toronto', 'Locarno', 'Sundance', 'Busan',
-//             'San Sebastian', 'San Sebastián', 'Karlovy Vary'
-//         ];
-
-//         foreach (array_merge($top3Festivals, $bTierFestivals) as $festivalName) {
-//             Festival::firstOrCreate(['name' => $festivalName]);
-//         }
-// });
+Route::get('/testing', function(){
+    return (VerifiedFilm::where('trailer_url', '')->get());
+});
